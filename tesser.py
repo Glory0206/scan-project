@@ -1,7 +1,6 @@
 import numpy as np
 import random
 import cv2
-import os
 import pytesseract
 from pytesseract import Output
 import matplotlib.pyplot as plt
@@ -9,16 +8,6 @@ from PIL import Image, ImageDraw, ImageFont
 
 # Path
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
-# def preprocess_image(image):
-#     image = cv2.imread(image, cv2.IMREAD_COLOR)
-#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # 이미지를 회색조로
-#     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-
-#     # Otsu's Binarization
-#     _, binary = cv2.threshold(blurred, 127, 255, cv2.THRESH_BINARY_INV)
-
-#     return binary
 
 def preprocess_image(image):
     image = cv2.imread(image, cv2.IMREAD_COLOR)
@@ -101,25 +90,27 @@ def is_alnum_hangul_math(c):
             ('\u2200' <= c <= '\u22FF'))  # 수식 기호 (기본 수학 연산)
 
 def RotateImage(preImage, angle):
-    h, w = preImage.shape[:2]
-    center = (w / 2, h / 2)
-    M = cv2.getRotationMatrix2D(center, -angle, 1.0)
-    
-    cos = np.abs(M[0, 0])
-    sin = np.abs(M[0, 1])
+    h, w = preImage.shape[:2]  # 높이, 너비
+    center = (w / 2, h / 2)  # 중점
+    M = cv2.getRotationMatrix2D(center, -angle, 1.0)  # angle이 음수 : 시계 방향, angle이 양수 : 반시계 방향
+
+    # 회전 후 이미지의 크기 계산    
+    cos = np.abs(M[0, 0])  # cos(theta)
+    sin = np.abs(M[0, 1])  # sin(theta)
     
     # new width and height calculations for arbitrary angles
     new_w = int((h * sin) + (w * cos))
     new_h = int((h * cos) + (w * sin))
     
-    # If angle is 90 or 270, swap width and height
+    # 각도가 90 또는 270일 경우, 가로, 세로 길이를 바꿔줌
     if angle in [90, 270]:
         new_w, new_h = h, w
     
-    # adjust the rotation matrix to take into account translation
+    # 회전 후에도 모든 픽셀을 포함할 수 있도록 이미지 크기 조정
     M[0, 2] += (new_w / 2) - center[0]
     M[1, 2] += (new_h / 2) - center[1]
-    
+
+    # 보간 방법 선택: cv2.INTER_LINEAR 또는 cv2.INTER_CUBIC 사용    
     rotated_img = cv2.warpAffine(preImage, M, (new_w, new_h), flags=cv2.INTER_LINEAR)
     
     return rotated_img, angle
@@ -150,8 +141,15 @@ def analyze_projection(image, results):
     # 텍스트 상자의 좌표를 추출
     text_boxes = [(results['left'][i], results['top'][i], results['width'][i], results['height'][i])
                   for i in range(len(results['text'])) if int(results['conf'][i]) > 0]
-    print("상자", text_boxes)
-    
+
+    # 신뢰도 수집
+    confidences = [int(results['conf'][i]) for i in range(len(results['text'])) if int(results['conf'][i]) > 0]
+    average_confidence = np.mean(confidences) if confidences else 0
+
+    print("텍스트 상자 좌표:", text_boxes)
+    print("신뢰도 리스트:", confidences)
+    print("평균 신뢰도:", average_confidence)
+
     # 빈도 수를 계산할 수 있도록 텍스트 상자의 y 좌표와 x 좌표를 각각 정렬
     vertical_projection = np.zeros(image.shape[1])  # 열 방향
     horizontal_projection = np.zeros(image.shape[0])  # 행 방향
@@ -175,41 +173,8 @@ def analyze_projection(image, results):
     elif v_max == h_max:
         return 'same'
 
-def get_osd_orientation(pre_image):
-    # pytesseract로부터 반환된 텍스트 방향(OSD) 가져오기
-    orientation = pytesseract.image_to_osd(pre_image)
-    print(orientation)
-
-    # 문자열에서 각도 추출
-    angle_start_idx = orientation.find('Rotate: ') + len('Rotate: ')
-    angle_end_idx = orientation.find('\n', angle_start_idx)
-    rotation_angle = int(orientation[angle_start_idx:angle_end_idx])
-    print(rotation_angle)
-
-def find_text_contours(image, results):    
-    text_contours = []
-    # 각 텍스트 블록에 대해 반복
-    for i in range(len(results['text'])):
-        x = results['left'][i]    # 텍스트 블록의 왼쪽 상단 x 좌표
-        y = results['top'][i]     # 텍스트 블록의 왼쪽 상단 y 좌표
-        w = results['width'][i]   # 텍스트 블록의 너비
-        h = results['height'][i]  # 텍스트 블록의 높이
-        
-        # 인식 신뢰도(confidence)가 0보다 큰 경우에만 처리
-        if int(results['conf'][i]) > 0:
-            roi = image[y:y+h, x:x+w]  # 이미지에서 텍스트 블록의 ROI 추출
-            contours, _ = cv2.findContours(roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            
-            # 각 외곽선의 좌표를 전체 이미지 좌표로 변환하여 리스트에 추가
-            for cnt in contours:
-                cnt[:, 0, 0] += x  # ROI에서 전체 이미지 좌표로 x 좌표 변환
-                cnt[:, 0, 1] += y  # ROI에서 전체 이미지 좌표로 y 좌표 변환
-                text_contours.append(cnt)
-    
-    return text_contours
-
 if __name__ == "__main__":
-    image_path = 'exam/exam54.jpg'
+    image_path = 'exam/exam62.jpg'
 
     pre_image = preprocess_image(image_path)
 
@@ -217,10 +182,7 @@ if __name__ == "__main__":
     custom_config = r'--oem 3 --psm 6'
     results = pytesseract.image_to_data(pre_image, output_type=pytesseract.Output.DICT, config=custom_config, lang='eng+kor+math')
 
-    # get_osd_orientation(pre_image)
     is_horizontal = analyze_projection(pre_image, results)
     print("가로입니까? : ", is_horizontal)
-
-    contours = find_text_contours(pre_image, results)
 
     PrintText(pre_image, is_horizontal, image_path)
