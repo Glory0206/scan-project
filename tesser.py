@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import cv2
+import os
 import pytesseract
 from pytesseract import Output
 import matplotlib.pyplot as plt
@@ -9,18 +10,32 @@ from PIL import Image, ImageDraw, ImageFont
 # Path
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
+# def preprocess_image(image):
+#     image = cv2.imread(image, cv2.IMREAD_COLOR)
+#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # 이미지를 회색조로
+#     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+
+#     # Otsu's Binarization
+#     _, binary = cv2.threshold(blurred, 127, 255, cv2.THRESH_BINARY_INV)
+
+#     return binary
+
 def preprocess_image(image):
     image = cv2.imread(image, cv2.IMREAD_COLOR)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # 이미지를 회색조로
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # 이미지를 회색조로 변환
 
-    # Otsu's Binarization
-    _, binary = cv2.threshold(blurred, 127, 255, cv2.THRESH_BINARY_INV)
+    # Bilateral Filtering
+    filtered = cv2.bilateralFilter(gray, 9, 75, 75)
+    _, binary = cv2.threshold(filtered, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
     return binary
 
 def PrintText(preImage, is_horizontal, original_image_path):
-    if is_horizontal:
+    if is_horizontal == 'same':
+        result_0 = pytesseract.image_to_data(pre_image, lang='eng+kor+math', output_type=Output.DICT)
+        DrawBox(preImage, result_0)
+
+    elif is_horizontal:
         rotated_image_0 = preImage
         rotated_image_180, _ = RotateImage(preImage, 180)
 
@@ -131,20 +146,38 @@ def DrawBox(preImage, result):
     plt.axis('off')
     plt.show()
 
-def analyze_projection(image):
-    vertical_projection = np.sum(image, axis=0) # 각 열의 픽셀 값의 합
-    horizontal_projection = np.sum(image, axis=1) # 각 행의 픽셀 값의 합
-    v_max = np.max(vertical_projection) # 크기가 가장 큰 열의 값
-    h_max = np.max(horizontal_projection) # 크기가 가장 큰 행의 값
+def analyze_projection(image, results):
+    # 텍스트 상자의 좌표를 추출
+    text_boxes = [(results['left'][i], results['top'][i], results['width'][i], results['height'][i])
+                  for i in range(len(results['text'])) if int(results['conf'][i]) > 0]
+    print("상자", text_boxes)
+    
+    # 빈도 수를 계산할 수 있도록 텍스트 상자의 y 좌표와 x 좌표를 각각 정렬
+    vertical_projection = np.zeros(image.shape[1])  # 열 방향
+    horizontal_projection = np.zeros(image.shape[0])  # 행 방향
 
-    print("v",v_max)
-    print("h",h_max)
+    for (x, y, w, h) in text_boxes:
+        vertical_projection[x:x+w] += 1
+        horizontal_projection[y:y+h] += 1
 
-    return v_max <= h_max
+    # 최대 빈도 수
+    v_max = np.max(vertical_projection)
+    h_max = np.max(horizontal_projection)
 
-def get_osd_orientation(edged):
+    print("v", v_max)
+    print("h", h_max)
+
+    # 가로/세로 여부 결정
+    if v_max < h_max:
+        return True
+    elif v_max > h_max:
+        return False
+    elif v_max == h_max:
+        return 'same'
+
+def get_osd_orientation(pre_image):
     # pytesseract로부터 반환된 텍스트 방향(OSD) 가져오기
-    orientation = pytesseract.image_to_osd(edged)
+    orientation = pytesseract.image_to_osd(pre_image)
     print(orientation)
 
     # 문자열에서 각도 추출
@@ -184,12 +217,10 @@ if __name__ == "__main__":
     custom_config = r'--oem 3 --psm 6'
     results = pytesseract.image_to_data(pre_image, output_type=pytesseract.Output.DICT, config=custom_config, lang='eng+kor+math')
 
-    is_horizontal = analyze_projection(pre_image)
+    # get_osd_orientation(pre_image)
+    is_horizontal = analyze_projection(pre_image, results)
     print("가로입니까? : ", is_horizontal)
 
     contours = find_text_contours(pre_image, results)
-
-    # Uncomment if you need to use OSD orientation
-    # get_osd_orientation(preImage)
 
     PrintText(pre_image, is_horizontal, image_path)
