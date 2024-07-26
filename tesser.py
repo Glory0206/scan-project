@@ -9,15 +9,86 @@ from PIL import Image, ImageDraw, ImageFont
 # Path
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-def preprocess_image(image):
-    image = cv2.imread(image, cv2.IMREAD_COLOR)
+class Resize(object):
+    def __init__(self, target_height, target_width):
+        # 목표 높이와 너비 초기화
+        self.target_height = target_height
+        self.target_width = target_width
+    
+    def __call__(self, inp):
+        # 이미지 데이터
+        img = inp['img']
+        h, w = img.shape  # 이미지의 원본 높이와 너비
+        
+        # 원본 이미지의 높이와 너비를 입력 딕셔너리에 저장
+        inp['org_height'] = h
+        inp['org_width'] = w
+        
+        # 이미지 비율을 유지하면서 크기를 조정하기 위해 목표 크기와 원본 크기의 비율을 계산
+        scale_height = self.target_height / h  # 목표 높이와 원본 높이의 비율
+        scale_width = self.target_width / w  # 목표 너비와 원본 너비의 비율
+        
+        # 이미지의 비율을 유지하기 위해 작은 비율을 선택
+        scale = min(scale_height, scale_width)
+        
+        # 선택된 비율로 새로운 높이와 너비를 계산
+        new_h = int(h * scale)
+        new_w = int(w * scale)
+        
+        # 이미지를 새로운 크기로 조정
+        resized_img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_CUBIC)
+        
+        # 목표 크기에 맞게 패딩을 추가하여 이미지를 중앙에 배치
+        padded_img = np.ones((self.target_height, self.target_width), dtype=np.uint8) * 255  # 흰색 배경
+        
+        # 패딩을 추가할 위치 계산
+        y_offset = (self.target_height - new_h) // 2
+        x_offset = (self.target_width - new_w) // 2
+        
+        # 패딩된 이미지에 조정된 이미지 중앙에 배치
+        padded_img[y_offset:y_offset+new_h, x_offset:x_offset+new_w] = resized_img
+        
+        # 패딩된 이미지를 입력 딕셔너리에 저장
+        inp['img'] = padded_img
+        return inp
+
+    
+def resize_image_based_on_resolution(image_path):
+    # 이미지 읽기
+    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    height, width, _ = image.shape
+    print("before : ",height, width)
+
+    if height > width:
+        # 세로가 긴 이미지 (1080x1440)
+        target_height, target_width = 1024, 768
+    else:
+        # 가로가 긴 이미지 (1440x1080)
+        target_height, target_width = 768, 1024
+
+    print("after : ",target_height, target_width)
+
+    # 이미지 전처리 및 리사이즈
+    processed_image = preprocess_image(image_path, target_height, target_width)
+
+    return processed_image
+
+def preprocess_image(image_path, target_height, target_width):
+    # 이미지 읽기
+    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # 이미지를 회색조로 변환
 
     # Bilateral Filtering
     filtered = cv2.bilateralFilter(gray, 9, 75, 75)
     _, binary = cv2.threshold(filtered, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-    return binary
+    # Resize 객체 생성 및 적용
+    resize = Resize(target_height, target_width)
+    inp = {'img': binary}
+    resized_inp = resize(inp)
+
+    return resized_inp['img']
+
 
 def PrintText(preImage, is_horizontal, original_image_path):
     if is_horizontal == 'same':
@@ -174,9 +245,9 @@ def analyze_projection(image, results):
         return 'same'
 
 if __name__ == "__main__":
-    image_path = 'exam/exam62.jpg'
+    image_path = 'exam/exam1.jpg'
 
-    pre_image = preprocess_image(image_path)
+    pre_image = resize_image_based_on_resolution(image_path)
 
     # Tesseract OCR를 사용하여 이미지에서 텍스트 인식
     custom_config = r'--oem 3 --psm 6'
