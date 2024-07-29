@@ -1,99 +1,144 @@
-import numpy as np
-import random
 import cv2
+import numpy as np
 import pytesseract
 from pytesseract import Output
-import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
+import matplotlib.pyplot as plt
+import random
+import os
+from glob import glob
 
-# Path
+# Path to Tesseract executable
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 class Resize(object):
     def __init__(self, target_height, target_width):
-        # 목표 높이와 너비 초기화
         self.target_height = target_height
         self.target_width = target_width
     
     def __call__(self, inp):
-        # 이미지 데이터
         img = inp['img']
-        h, w = img.shape  # 이미지의 원본 높이와 너비
+        h, w = img.shape  # 원본 이미지의 높이와 너비
         
-        # 원본 이미지의 높이와 너비를 입력 딕셔너리에 저장
         inp['org_height'] = h
         inp['org_width'] = w
         
-        # 이미지 비율을 유지하면서 크기를 조정하기 위해 목표 크기와 원본 크기의 비율을 계산
         scale_height = self.target_height / h  # 목표 높이와 원본 높이의 비율
         scale_width = self.target_width / w  # 목표 너비와 원본 너비의 비율
+        scale = min(scale_height, scale_width)  # 비율 계산
         
-        # 이미지의 비율을 유지하기 위해 작은 비율을 선택
-        scale = min(scale_height, scale_width)
-        
-        # 선택된 비율로 새로운 높이와 너비를 계산
         new_h = int(h * scale)
         new_w = int(w * scale)
         
-        # 이미지를 새로운 크기로 조정
         resized_img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_CUBIC)
         
-        # 목표 크기에 맞게 패딩을 추가하여 이미지를 중앙에 배치
+        # 목표 크기에 맞게 패딩을 추가
         padded_img = np.ones((self.target_height, self.target_width), dtype=np.uint8) * 255  # 흰색 배경
-        
-        # 패딩을 추가할 위치 계산
         y_offset = (self.target_height - new_h) // 2
         x_offset = (self.target_width - new_w) // 2
         
         # 패딩된 이미지에 조정된 이미지 중앙에 배치
         padded_img[y_offset:y_offset+new_h, x_offset:x_offset+new_w] = resized_img
         
-        # 패딩된 이미지를 입력 딕셔너리에 저장
         inp['img'] = padded_img
         return inp
-
     
-def resize_image_based_on_resolution(image_path):
-    # 이미지 읽기
-    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-    height, width, _ = image.shape
-    print("before : ",height, width)
+def process_image(image_path):
+    binary_image = preprocess_image(image_path)
 
-    if height > width:
-        # 세로가 긴 이미지 (1080x1440)
-        target_height, target_width = 1024, 768
-    else:
-        # 가로가 긴 이미지 (1440x1080)
-        target_height, target_width = 768, 1024
-
-    print("after : ",target_height, target_width)
-
-    # 이미지 전처리 및 리사이즈
-    processed_image = preprocess_image(image_path, target_height, target_width)
-
+    # 텍스트 영역의 윤곽선
+    boxes = extract_text_boxes(binary_image)
+    
+    # 텍스트 영역 크롭 및 리사이즈
+    processed_image = crop_and_resize_image(binary_image, boxes)
+    
     return processed_image
 
-def preprocess_image(image_path, target_height, target_width):
+def preprocess_image(image_path):
     # 이미지 읽기
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # 이미지를 회색조로 변환
-
+    
     # Bilateral Filtering
-    filtered = cv2.bilateralFilter(gray, 9, 75, 75)
-    _, binary = cv2.threshold(filtered, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    filtered = cv2.bilateralFilter(gray, 24, 75, 75)
+    _, binary = cv2.threshold(filtered, 127, 255, cv2.THRESH_BINARY_INV)
 
-    # Resize 객체 생성 및 적용
-    resize = Resize(target_height, target_width)
-    inp = {'img': binary}
-    resized_inp = resize(inp)
+    return binary
 
-    return resized_inp['img']
+def extract_text_boxes(binary_image):
+    # 텍스트 영역의 윤곽선 찾기
+    contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    boxes = []
+    for contour in contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        boxes.append((x, y, w, h))
+    # print("box", boxes)
+    
+    return boxes
 
+def box_debug(image, boxes, color=(0, 0, 255), thickness=2):
+    image_with_boxes = image.copy()
+    for box in boxes:
+        x, y, w, h = box
+        cv2.rectangle(image_with_boxes, (x, y), (x + w, y + h), color, thickness)
+    return image_with_boxes
+
+def crop_and_resize_image(binary_image, boxes):
+    if not boxes:
+        return binary_image
+
+    # 모든 텍스트 영역을 포함하는 사각형을 계산
+    min_x = min(box[0] for box in boxes)
+    min_y = min(box[1] for box in boxes)
+    max_x = max(box[0] + box[2] for box in boxes)
+    max_y = max(box[1] + box[3] for box in boxes)
+    
+    # 텍스트가 포함된 전체 영역을 크롭
+    cropped_image = binary_image[min_y:max_y, min_x:max_x]
+    
+    # 크롭된 이미지의 높이와 너비
+    h, w = cropped_image.shape[:2]
+    
+    resized_img = cv2.resize(cropped_image, (w, h), interpolation=cv2.INTER_CUBIC)
+
+    # plt.figure(figsize=(12, 12))
+    # plt.imshow(resized_img, cmap='gray')
+    # plt.axis('off')
+    # plt.show()
+
+    return resized_img
+
+def analyze_projection(image, results):
+    # 텍스트 상자의 좌표를 추출
+    text_boxes = [(results['left'][i], results['top'][i], results['width'][i], results['height'][i])
+                  for i in range(len(results['text'])) if int(results['conf'][i]) > 0]
+
+    # 빈도 수를 계산할 수 있도록 텍스트 상자의 y 좌표와 x 좌표를 각각 정렬
+    vertical_projection = np.zeros(image.shape[1])  # 열 방향
+    horizontal_projection = np.zeros(image.shape[0])  # 행 방향
+
+    for (x, y, w, h) in text_boxes:
+        vertical_projection[x:x+w] += 1
+        horizontal_projection[y:y+h] += 1
+
+    # 최대 빈도 수
+    v_max = np.max(vertical_projection)
+    h_max = np.max(horizontal_projection)
+
+    # 가로/세로 여부 결정
+    if v_max < h_max:
+        return True
+    elif v_max > h_max:
+        return False
+    elif v_max == h_max:
+        return 'same'
 
 def PrintText(preImage, is_horizontal, original_image_path):
     if is_horizontal == 'same':
-        result_0 = pytesseract.image_to_data(pre_image, lang='eng+kor+math', output_type=Output.DICT)
+        result_0 = pytesseract.image_to_data(preImage, lang='eng+kor+math', output_type=Output.DICT)
         DrawBox(preImage, result_0)
+        return 0
 
     elif is_horizontal:
         rotated_image_0 = preImage
@@ -108,15 +153,23 @@ def PrintText(preImage, is_horizontal, original_image_path):
         if text_0 == text_180:
             if box_0 > box_180:
                 DrawBox(rotated_image_0, result_0)
+                rotate_and_save_image(original_image_path, 0)
+                return 0
             elif box_0 < box_180:
                 DrawBox(rotated_image_180, result_180)
+                rotate_and_save_image(original_image_path, 180)
+                return 180
             else:
-                print(0)
                 print("방향을 인식하지 못했습니다.")
+                rotate_and_save_image(original_image_path, 0)
         elif text_0 > text_180:
             DrawBox(rotated_image_0, result_0)
+            rotate_and_save_image(original_image_path, 0)
+            return 0
         else:
             DrawBox(rotated_image_180, result_180)
+            rotate_and_save_image(original_image_path, 180)
+            return 180
 
     else:
         rotated_image_90, _ = RotateImage(preImage, 90)
@@ -131,14 +184,23 @@ def PrintText(preImage, is_horizontal, original_image_path):
         if text_90 == text_270:
             if box_90 > box_270:
                 DrawBox(rotated_image_90, result_90)
+                rotate_and_save_image(original_image_path, 90)
+                return 90
             elif box_90 < box_270:
                 DrawBox(rotated_image_270, result_270)
+                rotate_and_save_image(original_image_path, 270)
+                return 270
             else:
                 print("방향을 인식하지 못했습니다.")
+                rotate_and_save_image(original_image_path, 0)
         elif text_90 > text_270:
             DrawBox(rotated_image_90, result_90)
+            rotate_and_save_image(original_image_path, 90)
+            return 90
         else:
             DrawBox(rotated_image_270, result_270)
+            rotate_and_save_image(original_image_path, 270)
+            return 270
 
 def count_text(result, angle):
     total_count = 0
@@ -160,8 +222,8 @@ def is_alnum_hangul_math(c):
             ('\uAC00' <= c <= '\uD7A3') or  # 한글
             ('\u2200' <= c <= '\u22FF'))  # 수식 기호 (기본 수학 연산)
 
-def RotateImage(preImage, angle):
-    h, w = preImage.shape[:2]  # 높이, 너비
+def RotateImage(image, angle):
+    h, w = image.shape[:2]  # 높이, 너비
     center = (w / 2, h / 2)  # 중점
     M = cv2.getRotationMatrix2D(center, -angle, 1.0)  # angle이 음수 : 시계 방향, angle이 양수 : 반시계 방향
 
@@ -182,13 +244,28 @@ def RotateImage(preImage, angle):
     M[1, 2] += (new_h / 2) - center[1]
 
     # 보간 방법 선택: cv2.INTER_LINEAR 또는 cv2.INTER_CUBIC 사용    
-    rotated_img = cv2.warpAffine(preImage, M, (new_w, new_h), flags=cv2.INTER_LINEAR)
+    rotated_img = cv2.warpAffine(image, M, (new_w, new_h), flags=cv2.INTER_LINEAR)
     
     return rotated_img, angle
 
+def rotate_and_save_image(image_path, angle):
+    image = cv2.imread(image_path)
+    rotated_image, _ = RotateImage(image, angle)
+    
+    # Save to the 'result' directory
+    result_dir = 'result'
+    if not os.path.exists(result_dir):
+        os.makedirs(result_dir)
+        
+    file_name = os.path.basename(image_path)
+    result_path = os.path.join(result_dir, f"{os.path.splitext(file_name)[0]}.jpg")
+    
+    cv2.imwrite(result_path, rotated_image)
+    print(f"회전된 이미지가 저장되었습니다: {result_path}")
+
 def DrawBox(preImage, result):
     img_pil = Image.fromarray(cv2.cvtColor(preImage, cv2.COLOR_BGR2RGB))
-    font_path = 'Roboto-Black.ttf'
+    font_path = 'Roboto-Black.ttf'  # 글꼴 파일 경로
     font_size = 50
     font = ImageFont.truetype(font_path, font_size)
     draw = ImageDraw.Draw(img_pil)
@@ -203,57 +280,29 @@ def DrawBox(preImage, result):
             draw.rectangle(((x, y), (x + w, y + h)), outline=tuple(color), width=2)
             draw.text((x, y - 50), str(result['text'][i]), font=font, fill=tuple(color))
 
-    plt.figure(figsize=(12, 12))
-    plt.imshow(img_pil)
-    plt.axis('off')
-    plt.show()
+    # plt.figure(figsize=(12, 12))
+    # plt.imshow(img_pil)
+    # plt.axis('off')
+    # plt.show()
 
-def analyze_projection(image, results):
-    # 텍스트 상자의 좌표를 추출
-    text_boxes = [(results['left'][i], results['top'][i], results['width'][i], results['height'][i])
-                  for i in range(len(results['text'])) if int(results['conf'][i]) > 0]
+def process_and_rotate_images(input_folder):
+    image_paths = glob(os.path.join(input_folder, '*.jpg')) + glob(os.path.join(input_folder, '*.png'))
 
-    # 신뢰도 수집
-    confidences = [int(results['conf'][i]) for i in range(len(results['text'])) if int(results['conf'][i]) > 0]
-    average_confidence = np.mean(confidences) if confidences else 0
-
-    print("텍스트 상자 좌표:", text_boxes)
-    print("신뢰도 리스트:", confidences)
-    print("평균 신뢰도:", average_confidence)
-
-    # 빈도 수를 계산할 수 있도록 텍스트 상자의 y 좌표와 x 좌표를 각각 정렬
-    vertical_projection = np.zeros(image.shape[1])  # 열 방향
-    horizontal_projection = np.zeros(image.shape[0])  # 행 방향
-
-    for (x, y, w, h) in text_boxes:
-        vertical_projection[x:x+w] += 1
-        horizontal_projection[y:y+h] += 1
-
-    # 최대 빈도 수
-    v_max = np.max(vertical_projection)
-    h_max = np.max(horizontal_projection)
-
-    print("v", v_max)
-    print("h", h_max)
-
-    # 가로/세로 여부 결정
-    if v_max < h_max:
-        return True
-    elif v_max > h_max:
-        return False
-    elif v_max == h_max:
-        return 'same'
+    for image_path in image_paths:
+        print(f"Processing {image_path}...")
+        # 텍스트에 대해 윤곽선을 잡은 후 해장 부분 crop, resize
+        processed_image = process_image(image_path)
+        
+        # Tesseract OCR를 사용하여 이미지에서 텍스트 인식
+        custom_config = r'--oem 3 --psm 6'
+        results = pytesseract.image_to_data(processed_image, output_type=pytesseract.Output.DICT, config=custom_config, lang='eng+kor+math')
+        
+        is_horizontal = analyze_projection(processed_image, results)
+        print("가로입니까? : ", is_horizontal)
+        
+        angle = PrintText(processed_image, is_horizontal, image_path)
+        print(f"회전 각도: {angle}")
 
 if __name__ == "__main__":
-    image_path = 'exam/exam1.jpg'
-
-    pre_image = resize_image_based_on_resolution(image_path)
-
-    # Tesseract OCR를 사용하여 이미지에서 텍스트 인식
-    custom_config = r'--oem 3 --psm 6'
-    results = pytesseract.image_to_data(pre_image, output_type=pytesseract.Output.DICT, config=custom_config, lang='eng+kor+math')
-
-    is_horizontal = analyze_projection(pre_image, results)
-    print("가로입니까? : ", is_horizontal)
-
-    PrintText(pre_image, is_horizontal, image_path)
+    input_folder = 'exam'
+    process_and_rotate_images(input_folder)
