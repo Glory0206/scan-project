@@ -8,9 +8,6 @@ import random
 import os
 from glob import glob
 
-# Path to Tesseract executable
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
 class Resize(object):
     def __init__(self, target_height, target_width):
         self.target_height = target_height
@@ -51,8 +48,11 @@ def process_image(image_path):
     
     # 텍스트 영역 크롭 및 리사이즈
     processed_image = crop_and_resize_image(binary_image, boxes)
+
+    # 결과 반전 (흰색 바탕에 검은 글씨)
+    inverted_binary = cv2.bitwise_not(processed_image)
     
-    return processed_image
+    return inverted_binary
 
 def preprocess_image(image_path):
     # 이미지 읽기
@@ -61,8 +61,10 @@ def preprocess_image(image_path):
     
     # Bilateral Filtering
     filtered = cv2.bilateralFilter(gray, 24, 75, 75)
-    _, binary = cv2.threshold(filtered, 127, 255, cv2.THRESH_BINARY_INV)
 
+    _, binary = cv2.threshold(filtered, 127, 255, cv2.THRESH_BINARY_INV)
+    # binary = cv2.adaptiveThreshold(filtered, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    
     return binary
 
 def extract_text_boxes(binary_image):
@@ -102,17 +104,23 @@ def crop_and_resize_image(binary_image, boxes):
     
     resized_img = cv2.resize(cropped_image, (w, h), interpolation=cv2.INTER_CUBIC)
 
-    # plt.figure(figsize=(12, 12))
-    # plt.imshow(resized_img, cmap='gray')
-    # plt.axis('off')
-    # plt.show()
-
     return resized_img
 
-def analyze_projection(image, results):
-    # 텍스트 상자의 좌표를 추출
-    text_boxes = [(results['left'][i], results['top'][i], results['width'][i], results['height'][i])
-                  for i in range(len(results['text'])) if int(results['conf'][i]) > 0]
+def analyze_projection(image, results, ocr):
+    if ocr == 0:
+        # 텍스트 상자의 좌표를 추출
+        text_boxes = [(results['left'][i], results['top'][i], results['width'][i], results['height'][i])
+                    for i in range(len(results['text'])) if int(results['conf'][i]) > 0]
+    else:
+        # 텍스트 상자의 좌표를 추출
+        text_boxes = []
+        for result in results:
+            (top_left, top_right, bottom_right, bottom_left) = result[0]
+            x_min, y_min = map(int, top_left)  # 정수로 변환
+            x_max, y_max = map(int, bottom_right)  # 정수로 변환
+            width = x_max - x_min
+            height = y_max - y_min
+            text_boxes.append((x_min, y_min, width, height))
 
     # 빈도 수를 계산할 수 있도록 텍스트 상자의 y 좌표와 x 좌표를 각각 정렬
     vertical_projection = np.zeros(image.shape[1])  # 열 방향
@@ -134,40 +142,46 @@ def analyze_projection(image, results):
     elif v_max == h_max:
         return 'same'
 
-def PrintText(preImage, is_horizontal, original_image_path):
+def PrintText(preImage, is_horizontal, original_image_path, ocr):
     if is_horizontal == 'same':
-        result_0 = pytesseract.image_to_data(preImage, lang='eng+kor+math', output_type=Output.DICT)
-        DrawBox(preImage, result_0)
+        if ocr == 0:
+            result_0 = pytesseract.image_to_data(preImage, lang='eng+kor+math', output_type=Output.DICT)
+        else:
+            result_0 = reader.readtext(preImage)
+        DrawBox(preImage, result_0, ocr)
         return 0
 
     elif is_horizontal:
         rotated_image_0 = preImage
         rotated_image_180, _ = RotateImage(preImage, 180)
 
-        result_0 = pytesseract.image_to_data(rotated_image_0, lang='eng+kor+math', output_type=Output.DICT)
-        result_180 = pytesseract.image_to_data(rotated_image_180, lang='eng+kor+math', output_type=Output.DICT)
+        if ocr == 0:
+            result_0 = pytesseract.image_to_data(rotated_image_0, lang='eng+kor+math', output_type=Output.DICT)
+            result_180 = pytesseract.image_to_data(rotated_image_180, lang='eng+kor+math', output_type=Output.DICT)
+        else:
+            result_0 = reader.readtext(rotated_image_0)
+            result_180 = reader.readtext(rotated_image_180)
 
-        text_0, box_0 = count_text(result_0, 0)
-        text_180, box_180 = count_text(result_180, 180)
+        text_0, box_0 = count_text(result_0, 0, ocr)
+        text_180, box_180 = count_text(result_180, 180, ocr)
 
         if text_0 == text_180:
             if box_0 > box_180:
-                DrawBox(rotated_image_0, result_0)
+                DrawBox(rotated_image_0, result_0, ocr)
                 rotate_and_save_image(original_image_path, 0)
                 return 0
             elif box_0 < box_180:
-                DrawBox(rotated_image_180, result_180)
+                DrawBox(rotated_image_180, result_180, ocr)
                 rotate_and_save_image(original_image_path, 180)
                 return 180
             else:
                 print("방향을 인식하지 못했습니다.")
-                rotate_and_save_image(original_image_path, 0)
         elif text_0 > text_180:
-            DrawBox(rotated_image_0, result_0)
+            DrawBox(rotated_image_0, result_0, ocr)
             rotate_and_save_image(original_image_path, 0)
             return 0
         else:
-            DrawBox(rotated_image_180, result_180)
+            DrawBox(rotated_image_180, result_180, ocr)
             rotate_and_save_image(original_image_path, 180)
             return 180
 
@@ -175,44 +189,57 @@ def PrintText(preImage, is_horizontal, original_image_path):
         rotated_image_90, _ = RotateImage(preImage, 90)
         rotated_image_270, _ = RotateImage(preImage, 270)
 
-        result_90 = pytesseract.image_to_data(rotated_image_90, lang='eng+kor+math', output_type=Output.DICT)
-        result_270 = pytesseract.image_to_data(rotated_image_270, lang='eng+kor+math', output_type=Output.DICT)
+        if ocr == 0:
+            result_90 = pytesseract.image_to_data(rotated_image_90, lang='eng+kor+math', output_type=Output.DICT)
+            result_270 = pytesseract.image_to_data(rotated_image_270, lang='eng+kor+math', output_type=Output.DICT)
+        else:
+            result_90 = reader.readtext(rotated_image_90)
+            result_270 = reader.readtext(rotated_image_270)
 
-        text_90, box_90 = count_text(result_90, 90)
-        text_270, box_270 = count_text(result_270, 270)
+        text_90, box_90 = count_text(result_90, 90, ocr)
+        text_270, box_270 = count_text(result_270, 270, ocr)
 
         if text_90 == text_270:
             if box_90 > box_270:
-                DrawBox(rotated_image_90, result_90)
+                DrawBox(rotated_image_90, result_90, ocr)
                 rotate_and_save_image(original_image_path, 90)
                 return 90
             elif box_90 < box_270:
-                DrawBox(rotated_image_270, result_270)
+                DrawBox(rotated_image_270, result_270, ocr)
                 rotate_and_save_image(original_image_path, 270)
                 return 270
             else:
                 print("방향을 인식하지 못했습니다.")
-                rotate_and_save_image(original_image_path, 0)
         elif text_90 > text_270:
-            DrawBox(rotated_image_90, result_90)
+            DrawBox(rotated_image_90, result_90, ocr)
             rotate_and_save_image(original_image_path, 90)
             return 90
         else:
-            DrawBox(rotated_image_270, result_270)
+            DrawBox(rotated_image_270, result_270, ocr)
             rotate_and_save_image(original_image_path, 270)
             return 270
 
-def count_text(result, angle):
+def count_text(result, angle, ocr):
     total_count = 0
     confidence_factor = 0
-    box_count = len(result['text'])
 
-    for i in range(box_count):
-        if int(result['conf'][i]) > 0:
-            text = result['text'][i]
+    if ocr == 0:
+        box_count = len(result['text'])
+
+        for i in range(box_count):
+            if int(result['conf'][i]) > 0:
+                text = result['text'][i]
+                alnum_hangul_math_count = sum(is_alnum_hangul_math(c) for c in text)
+                confidence_factor += int(result['conf'][i]) / 100.0
+                total_count += alnum_hangul_math_count
+    else:
+        box_count = len(result)
+
+        for result in result:
+            text = result[1]
             alnum_hangul_math_count = sum(is_alnum_hangul_math(c) for c in text)
-            confidence_factor += int(result['conf'][i]) / 100.0
-            total_count += alnum_hangul_math_count
+            confidence_factor += result[2] / 100.0
+            total_count += alnum_hangul_math_count        
 
     print(f"Angle: {angle}, Total Count: {total_count}, 인식률: {confidence_factor/box_count}")
     return total_count, confidence_factor
@@ -263,7 +290,7 @@ def rotate_and_save_image(image_path, angle):
     cv2.imwrite(result_path, rotated_image)
     print(f"회전된 이미지가 저장되었습니다: {result_path}")
 
-def DrawBox(preImage, result):
+def DrawBox(preImage, results, ocr):
     img_pil = Image.fromarray(cv2.cvtColor(preImage, cv2.COLOR_BGR2RGB))
     font_path = 'Roboto-Black.ttf'  # 글꼴 파일 경로
     font_size = 50
@@ -272,37 +299,60 @@ def DrawBox(preImage, result):
     np.random.seed(42)
     COLORS = np.random.randint(0, 255, size=(255, 3), dtype="uint8")
 
-    for i in range(len(result['text'])):
-        if int(result['conf'][i]) > 0:
-            x, y, w, h = (result['left'][i], result['top'][i], result['width'][i], result['height'][i])
+    if ocr == 0:
+        for i in range(len(results['text'])):
+            if int(results['conf'][i]) > 0:
+                x, y, w, h = (results['left'][i], results['top'][i], results['width'][i], results['height'][i])
+                color_idx = random.randint(0, 200)
+                color = [int(c) for c in COLORS[color_idx]]
+                draw.rectangle(((x, y), (x + w, y + h)), outline=tuple(color), width=2)
+                draw.text((x, y - 50), str(results['text'][i]), font=font, fill=tuple(color))
+    else:
+        for result in results:
+            bbox, text, _ = result
+            (x_min, y_min), (x_max, y_max) = bbox[0], bbox[2]
             color_idx = random.randint(0, 200)
             color = [int(c) for c in COLORS[color_idx]]
-            draw.rectangle(((x, y), (x + w, y + h)), outline=tuple(color), width=2)
-            draw.text((x, y - 50), str(result['text'][i]), font=font, fill=tuple(color))
+            draw.rectangle(((x_min, y_min), (x_max, y_max)), outline=tuple(color), width=2)
+            draw.text((x_min, y_min - 50), str(text), font=font, fill=tuple(color))
 
-    # plt.figure(figsize=(12, 12))
-    # plt.imshow(img_pil)
-    # plt.axis('off')
-    # plt.show()
-
-def process_and_rotate_images(input_folder):
+def process_and_rotate_images(input_folder, select_ocr):
     image_paths = glob(os.path.join(input_folder, '*.jpg')) + glob(os.path.join(input_folder, '*.png'))
 
     for image_path in image_paths:
         print(f"Processing {image_path}...")
         # 텍스트에 대해 윤곽선을 잡은 후 해장 부분 crop, resize
         processed_image = process_image(image_path)
+
+        if select_ocr == 0:
+            results = pytesseract.image_to_data(processed_image, output_type=pytesseract.Output.DICT, config=custom_config, lang='eng+kor+math')
+
+        elif select_ocr == 1:
+            # EasyOCR를 사용하여 이미지에서 텍스트 인식
+            results = reader.readtext(processed_image)
         
-        # Tesseract OCR를 사용하여 이미지에서 텍스트 인식
-        custom_config = r'--oem 3 --psm 6'
-        results = pytesseract.image_to_data(processed_image, output_type=pytesseract.Output.DICT, config=custom_config, lang='eng+kor+math')
-        
-        is_horizontal = analyze_projection(processed_image, results)
+        is_horizontal = analyze_projection(processed_image, results, select_ocr)
         print("가로입니까? : ", is_horizontal)
         
-        angle = PrintText(processed_image, is_horizontal, image_path)
+        angle = PrintText(processed_image, is_horizontal, image_path, select_ocr)
         print(f"회전 각도: {angle}")
 
 if __name__ == "__main__":
     input_folder = 'exam'
-    process_and_rotate_images(input_folder)
+
+    print("Tesseract : 0   EasyOCR : 1")
+    select_ocr = int(input("OCR : "))
+
+    if select_ocr == 0:
+        import pytesseract
+        from pytesseract import Output
+        # Path
+        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+        # Tesseract OCR를 사용하여 이미지에서 텍스트 인식
+        custom_config = r'--oem 3 --psm 6'
+    elif select_ocr == 1:
+        import easyocr
+
+        reader = easyocr.Reader(['en', 'ko'])  # 사용할 언어 설정
+
+    process_and_rotate_images(input_folder, select_ocr)
