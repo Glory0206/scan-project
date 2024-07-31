@@ -57,7 +57,7 @@ def preprocess_image(image_path):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # 이미지를 회색조로 변환
     
     # Bilateral Filtering
-    filtered = cv2.bilateralFilter(gray, 24, 75, 75)
+    filtered = cv2.bilateralFilter(gray, 25, 75, 75)
 
     _, binary = cv2.threshold(filtered, 127, 255, cv2.THRESH_BINARY_INV)
     # binary = cv2.adaptiveThreshold(filtered, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)

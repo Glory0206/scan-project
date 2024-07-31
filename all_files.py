@@ -60,7 +60,7 @@ def preprocess_image(image_path):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # 이미지를 회색조로 변환
     
     # Bilateral Filtering
-    filtered = cv2.bilateralFilter(gray, 24, 75, 75)
+    filtered = cv2.bilateralFilter(gray, 25, 75, 75)
 
     _, binary = cv2.threshold(filtered, 127, 255, cv2.THRESH_BINARY_INV)
     # binary = cv2.adaptiveThreshold(filtered, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
@@ -317,7 +317,7 @@ def DrawBox(preImage, results, ocr):
             draw.text((x_min, y_min - 50), str(text), font=font, fill=tuple(color))
 
 def process_and_rotate_images(input_folder, select_ocr):
-    image_paths = glob(os.path.join(input_folder, '*.jpg')) + glob(os.path.join(input_folder, '*.png'))
+    image_paths = glob(os.path.join(input_folder, '*'))
 
     for image_path in image_paths:
         print(f"Processing {image_path}...")
