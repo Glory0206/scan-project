@@ -4,6 +4,13 @@ from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 import random
 
+import pytesseract
+from pytesseract import Output
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+import easyocr
+reader = easyocr.Reader(['en', 'ko'])  # 사용할 언어 설정
+
 class Resize(object):
     def __init__(self, target_height, target_width):
         self.target_height = target_height
@@ -62,10 +69,10 @@ def preprocess_image(image_path):
     _, binary = cv2.threshold(filtered, 127, 255, cv2.THRESH_BINARY_INV)
     # binary = cv2.adaptiveThreshold(filtered, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
-    plt.figure(figsize=(12, 12))
-    plt.imshow(binary)
-    plt.axis('off')
-    plt.show()
+    # plt.figure(figsize=(12, 12))
+    # plt.imshow(binary)
+    # plt.axis('off')
+    # plt.show()
     
     return binary
 
@@ -106,10 +113,10 @@ def crop_and_resize_image(binary_image, boxes):
     
     resized_img = cv2.resize(cropped_image, (w, h), interpolation=cv2.INTER_CUBIC)
 
-    plt.figure(figsize=(12, 12))
-    plt.imshow(resized_img)
-    plt.axis('off')
-    plt.show()
+    # plt.figure(figsize=(12, 12))
+    # plt.imshow(resized_img)
+    # plt.axis('off')
+    # plt.show()
 
     return resized_img
 
@@ -263,7 +270,7 @@ def RotateImage(preImage, angle):
     
     return rotated_img, angle
 
-def DrawBox(preImage, result, ocr):
+def DrawBox(preImage, results, ocr):
     img_pil = Image.fromarray(cv2.cvtColor(preImage, cv2.COLOR_BGR2RGB))
     font_path = 'Roboto-Black.ttf'  # 글꼴 파일 경로
     font_size = 50
@@ -273,13 +280,13 @@ def DrawBox(preImage, result, ocr):
     COLORS = np.random.randint(0, 255, size=(255, 3), dtype="uint8")
 
     if ocr == 0:
-        for i in range(len(result['text'])):
-            if int(result['conf'][i]) > 0:
-                x, y, w, h = (result['left'][i], result['top'][i], result['width'][i], result['height'][i])
+        for i in range(len(results['text'])):
+            if int(results['conf'][i]) > 0:
+                x, y, w, h = (results['left'][i], results['top'][i], results['width'][i], results['height'][i])
                 color_idx = random.randint(0, 200)
                 color = [int(c) for c in COLORS[color_idx]]
                 draw.rectangle(((x, y), (x + w, y + h)), outline=tuple(color), width=2)
-                draw.text((x, y - 50), str(result['text'][i]), font=font, fill=tuple(color))
+                draw.text((x, y - 50), str(results['text'][i]), font=font, fill=tuple(color))
     else:
         for result in results:
             bbox, text, _ = result
@@ -294,8 +301,10 @@ def DrawBox(preImage, result, ocr):
     plt.axis('off')
     plt.show()
 
-if __name__ == "__main__":
-    image_path = 'exam/exam1.jpg'
+def start():
+    number = int(input("문제의 번호를 입력해주세요 : "))
+    image_path = f'exam/exam{number}.jpg'
+    print(image_path)
 
     print("Tesseract : 0   EasyOCR : 1")
     select_ocr = int(input("OCR : "))
@@ -305,20 +314,11 @@ if __name__ == "__main__":
     processed_image = process_image(image_path)
 
     if select_ocr == 0:
-        import pytesseract
-        from pytesseract import Output
-        # Path
-        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
         # Tesseract OCR를 사용하여 이미지에서 텍스트 인식
         custom_config = r'--oem 3 --psm 6'
         results = pytesseract.image_to_data(processed_image, output_type=pytesseract.Output.DICT, config=custom_config, lang='eng+kor+math')
 
     elif select_ocr == 1:
-        import easyocr
-
-        reader = easyocr.Reader(['en', 'ko'])  # 사용할 언어 설정
-
         # EasyOCR를 사용하여 이미지에서 텍스트 인식
         results = reader.readtext(processed_image)
 

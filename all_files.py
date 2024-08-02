@@ -1,12 +1,20 @@
 import cv2
 import numpy as np
-import pytesseract
-from pytesseract import Output
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 import random
 import os
 from glob import glob
+
+import pytesseract
+from pytesseract import Output
+# Path
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# Tesseract OCR를 사용하여 이미지에서 텍스트 인식
+custom_config = r'--oem 3 --psm 6'
+
+import easyocr
+reader = easyocr.Reader(['en', 'ko'])  # 사용할 언어 설정
 
 class Resize(object):
     def __init__(self, target_height, target_width):
@@ -337,22 +345,10 @@ def process_and_rotate_images(input_folder, select_ocr):
         angle = PrintText(processed_image, is_horizontal, image_path, select_ocr)
         print(f"회전 각도: {angle}")
 
-if __name__ == "__main__":
+def start():
     input_folder = 'exam'
 
     print("Tesseract : 0   EasyOCR : 1")
     select_ocr = int(input("OCR : "))
-
-    if select_ocr == 0:
-        import pytesseract
-        from pytesseract import Output
-        # Path
-        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-        # Tesseract OCR를 사용하여 이미지에서 텍스트 인식
-        custom_config = r'--oem 3 --psm 6'
-    elif select_ocr == 1:
-        import easyocr
-
-        reader = easyocr.Reader(['en', 'ko'])  # 사용할 언어 설정
 
     process_and_rotate_images(input_folder, select_ocr)
