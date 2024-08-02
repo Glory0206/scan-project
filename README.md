@@ -13,37 +13,37 @@
 ## 가상환경 설정
 Miniforge3를 사용하여 가상환경을 구성한다.
 ### 가상환경 생성(Python == 3.10.14)
-    **conda create --name '생성 환경 이름' python=3.10**
+    conda create --name '생성 환경 이름' python=3.10
 ### 가상환경 활성화
-    **conda activate '생성 환경 이름'**
+    conda activate '생성 환경 이름'
 ### 가상환경 정상 진입 확인
-    **conda info --envs**
+    conda info --envs
 ---
 
 ## 환경 설정(Package 설치)
 ### OpenCV-python == 4.10.0.84
-    **pip install opencv-python**
+    pip install opencv-python
 
 ### Pillow == 10.4.0
-    **conda install pillow**
+    conda install pillow
 
 ### Matplotlib == 9.9.1
-    **conda install matplotlib**
+    conda install matplotlib
 
 ### Tesseract == 0.3.10
-    **pip install pytesseract**
+    pip install pytesseract
 
 ### EasyOCR == 1.7.1
-    **pip install easyocr**
+    pip install easyocr
 
 ### DownGrade
-    **numpy == 1.26.4**
+    numpy == 1.26.4
 
-    **ninja == 1.10.2**
+    ninja == 1.10.2
 
-    **torch == 2.0.0**
+    torch == 2.0.0
 
-    **torchvision == 0.15.1**
+    torchvision == 0.15.1
 ---
 
 ## 실행 방법
