@@ -39,8 +39,6 @@ Miniforge3를 사용하여 가상환경을 구성한다.
 ### DownGrade
     numpy == 1.26.4
 
-    ninja == 1.10.2
-
     torch == 2.0.0
 
     torchvision == 0.15.1

@@ -139,6 +139,12 @@ def analyze_projection(image, results, ocr):
     horizontal_projection = np.zeros(image.shape[0])  # 행 방향
 
     for (x, y, w, h) in text_boxes:
+        # 인덱스를 정수로 변환
+        x = int(x)
+        y = int(y)
+        w = int(w)
+        h = int(h)
+
         vertical_projection[x:x+w] += 1
         horizontal_projection[y:y+h] += 1
 
@@ -308,7 +314,6 @@ def start():
 
     print("Tesseract : 0   EasyOCR : 1")
     select_ocr = int(input("OCR : "))
-    print("safdfssdf",select_ocr)
 
     # 텍스트에 대해 윤곽선을 잡은 후 해당 부분 crop, resize
     processed_image = process_image(image_path)
