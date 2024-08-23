@@ -3,13 +3,13 @@ import os
 
 def setting():
     # 경로 설정
-    exam_folder = 'exam'
+    exam_folder = 'data_files/exam'
 
     # 라벨링 폴더
-    left_to_right_folder = 'dataset/left_to_right'
-    top_to_bottom_folder = 'dataset/top_to_bottom'
-    right_to_left_folder = 'dataset/right_to_left'
-    bottom_to_top_folder = 'dataset/bottom_to_top'
+    left_to_right_folder = 'data_files/dataset/left_to_right'
+    top_to_bottom_folder = 'data_files/dataset/top_to_bottom'
+    right_to_left_folder = 'data_files/dataset/right_to_left'
+    bottom_to_top_folder = 'data_files/dataset/bottom_to_top'
 
     # 디렉토리가 없는 경우 생성(학습 후 데이터를 지우기 때문)
     os.makedirs(left_to_right_folder, exist_ok=True)
