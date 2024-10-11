@@ -6,6 +6,7 @@ from routers.set_router import router as set_router
 from routers.train_router import router as train_router
 from routers.evaluate_router import router as evaluate_router
 from routers.predict_router import router as predict_router
+from routers.upload_router import router as upload_router
 
 app = FastAPI()
 
@@ -23,6 +24,7 @@ app.include_router(set_router)
 app.include_router(train_router)
 app.include_router(evaluate_router)
 app.include_router(predict_router)
+app.include_router(upload_router)
 
 # 초기 경로
 @app.get("/")
