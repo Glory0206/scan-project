@@ -5,12 +5,14 @@ import torch.optim as optim
 import torch.nn as nn
 import shutil
 import os
+
 from services.model import initialize_model, save_model
+from constants import LABELING_PATH
 
 # 모델 훈련
-def train_model(num_epochs=12):
+def train_model(num_epochs: int = 12):
 
-    path = 'data_files/dataset'
+    path = LABELING_PATH
 
     # 데이터 전처리
     transform = transforms.Compose([

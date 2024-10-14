@@ -2,10 +2,11 @@ import torch
 from PIL import Image
 from torchvision import transforms
 from services.model import load_model
+from constants import LABELING_PATH
 
 def predict_image():
 
-    path = r"C:\Users\dmb07223\OneDrive - 진학사\바탕 화면\Seo\project\its_glory\fine_tuning\ResNet18\test_data\1.jpg"
+    path = LABELING_PATH
 
     # 이미지 전처리 (훈련과 동일하게)
     transform = transforms.Compose([

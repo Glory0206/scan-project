@@ -2,6 +2,7 @@ import os
 import torch
 from PIL import Image, ExifTags
 from torchvision import transforms
+from typing import Optional, List
 from services.model import load_model
 
 def correct_orientation(image):
@@ -11,9 +12,9 @@ def correct_orientation(image):
             if ExifTags.TAGS[orientation] == 'Orientation':
                 break
 
-        exif = image._getexif()
+        exif: Optional[dict] = image._getexif()
         if exif is not None:
-            orientation = exif.get(orientation)
+            orientation: Optional[int] = exif.get(orientation)
             if orientation == 3:
                 image = image.rotate(180, expand=True)
             elif orientation == 6:
