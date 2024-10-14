@@ -1,15 +1,17 @@
 from PIL import Image, ExifTags
 import os
 
+from constants import EXAM_FOLDER_PATH, LEFT_TO_RIGHT_FOLDER, TOP_TO_BOTTOM_FOLDER, RIGHT_TO_LEFT_FOLDER, BOTTOM_TO_TOP_FOLDER
+
 def setting():
     # 경로 설정
-    exam_folder = 'data_files/exam'
+    exam_folder = EXAM_FOLDER_PATH
 
     # 라벨링 폴더
-    left_to_right_folder = 'data_files/dataset/left_to_right'
-    top_to_bottom_folder = 'data_files/dataset/top_to_bottom'
-    right_to_left_folder = 'data_files/dataset/right_to_left'
-    bottom_to_top_folder = 'data_files/dataset/bottom_to_top'
+    left_to_right_folder = LEFT_TO_RIGHT_FOLDER
+    top_to_bottom_folder = TOP_TO_BOTTOM_FOLDER
+    right_to_left_folder = RIGHT_TO_LEFT_FOLDER
+    bottom_to_top_folder = BOTTOM_TO_TOP_FOLDER
 
     # 디렉토리가 없는 경우 생성(학습 후 데이터를 지우기 때문)
     os.makedirs(left_to_right_folder, exist_ok=True)

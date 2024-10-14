@@ -2,10 +2,11 @@ import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from services.model import load_model
+from constants import LABELING_PATH
 
 # 모델 평가
 def evaluate_model():
-    path = r"C:\Users\dmb07223\OneDrive - 진학사\바탕 화면\Seo\project\its_glory\fine_tuning\ResNet18\dataset"
+    path = LABELING_PATH
 
     # 데이터 전처리 (훈련과 동일하게)
     transform = transforms.Compose([

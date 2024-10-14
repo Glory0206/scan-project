@@ -2,9 +2,9 @@
 
 import { useState, useCallback } from 'react';
 
-import '../css/scan_image.css';
+import '../css/Rotation.css';
 
-function ScanImage() {
+const Rotation = () => {
   // 이미지 데이터 저장 상태
   const [images, setImages] = useState([]);
 
@@ -104,4 +104,4 @@ function ScanImage() {
   );
 }
 
-export default ScanImage;
+export default Rotation;

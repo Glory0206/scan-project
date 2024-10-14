@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Dict
 
 # 각 라우터에서 APIRouter 객체 가져오기
 from routers.set_router import router as set_router
@@ -13,7 +14,7 @@ app = FastAPI()
 # CORS 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React 앱의 URL
+    allow_origins=["http://localhost:5173"],  # React 웹의 URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -28,5 +29,5 @@ app.include_router(upload_router)
 
 # 초기 경로
 @app.get("/")
-def root():
+def root() -> Dict[str, str]:
     return {"message": "/train, /evaluate, /predict 중 하나를 url의 뒤에 붙여 기능을 이용해주세요."}

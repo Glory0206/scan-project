@@ -4,11 +4,11 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';  // Bootstrap CSS를 import
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-import ScanImage from './components/scan_image';
+import ScanImage from './components/Rotation';
 import Home from './components/Home';
-import TrainModel from './components/Train_model';
+import TrainModel from './components/TrainModel';
 
-function App() {
+const App = () => {
   return (
     <Router>
       <div>

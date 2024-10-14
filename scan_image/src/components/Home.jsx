@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 import '../css/Home.css';
 
-function Home() {
+const Home = () => {
   return (
     <div className="container">
       <div className="left">
