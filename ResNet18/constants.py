@@ -1,5 +1,3 @@
-PROJECT_PATH = r"C:\Users\dmb07223\OneDrive - 진학사\바탕 화면\Seo\project\its_glory\fine_tuning\ResNet18\dataset"
-
 # 데이터셋 폴더
 LABELING_PATH = "data_files/dataset"
 EXAM_FOLDER_PATH = "data_files/exam"

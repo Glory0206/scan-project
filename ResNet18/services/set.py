@@ -29,7 +29,7 @@ def setting():
 
     # exam 폴더의 모든 이미지 파일에 대해 처리
     for filename in os.listdir(exam_folder):
-        if filename.endswith('.jpg') or filename.endswith('.png'):  # 이미지 파일만 처리
+        if filename.endswith('.jpg') or filename.endswith('.png') or filename.endswith('.jpeg'):  # 이미지 파일만 처리
             file_path = os.path.join(exam_folder, filename)
 
             # 이미지 열기

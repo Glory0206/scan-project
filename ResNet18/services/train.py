@@ -38,6 +38,7 @@ def train_model(num_epochs: int = 12):
     optimizer = optim.Adam(model.parameters(), lr=0.001) # 학습률
 
     model.train()
+
     for epoch in range(num_epochs):
         running_loss = 0.0 # 현재 epock 동안의 손실값
         correct = 0 # 결과가 일치하는 이미지 개수
@@ -45,6 +46,7 @@ def train_model(num_epochs: int = 12):
         
         # 학습 데이터 불러와 이미지와 라벨로 분류
         for images, labels in train_loader:
+            print("-", end='', flush=True)
             # 이미지와 라벨 데이터를 GPU 또는 CPU 장치로 이동
             images, labels = images.to(device), labels.to(device)
 
