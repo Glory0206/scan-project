@@ -11,7 +11,7 @@ def random_rotate(pdf_path):
 
     # 이미지 객체를 OpenCV 형식으로 변환
     open_cv_image = np.array(page_image)
-    for i in range(5): # 생성할 이미지 개수
+    for i in range(25): # 생성할 이미지 개수
 
         # 회전 방향
         direction = random.choice([-1, 1])

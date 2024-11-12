@@ -3,12 +3,14 @@ from function.word_check import find_text_coordinates_easyocr
 from testdata.function.write import write
 from testdata.function.preprocessing import preprocess_image
 from function.coord import box_check, small_box
+import os
 
-pdf_path = 'dataset/original_data/삼육대2_B.pdf'
-print(pdf_path[22:])
+pdf_path = 'dataset/original_data/Sahmyook2_F.pdf'
+file_name = os.path.splitext(os.path.basename(pdf_path))[0]
+print(file_name)
 
 # 앞면, 뒷면 구분
-if 'F' in pdf_path[22 :]:
+if 'F' in file_name:
     temp = 'F'
 else:
     temp = 'B'
@@ -35,4 +37,4 @@ vertical -= small_vertical
 print("문제의 개수",num_of_ploblems)
 
 for i in range(len(preprocess_images)):
-    write(images[i], coord_top_left, horizontal, vertical, num_of_ploblems, i)
+    write(images[i], file_name, coord_top_left, horizontal, vertical, num_of_ploblems, i)
