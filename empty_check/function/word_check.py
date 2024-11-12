@@ -1,7 +1,7 @@
 import easyocr
 import cv2
 
-def find_text_coordinates_easyocr(image, temp, target_texts=['문제']):  # '문제' 또는 '문 제'의 정보를 가져오기 위함
+def find_text_coordinates_easyocr(image, temp = 'F', target_texts=['문제']):  # '문제' 또는 '문 제'의 정보를 가져오기 위함
     reader = easyocr.Reader(['ko', 'en'])
 
     results = reader.readtext(image)

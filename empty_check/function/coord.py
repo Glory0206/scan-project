@@ -19,6 +19,13 @@ def box_check(coord_top_left, pass_text=True): # 첫 문제의 가로, 세로 �
 
     return horizontal, vertical, pass_text
 
+def small_box(coord_top_left, coord_bottom_right):
+    horizontal = coord_bottom_right[0] - coord_top_left[0]
+    vertical = coord_bottom_right[1] - coord_top_left[1]
+
+    return horizontal, vertical
+
+
 def crop_image(preprocess_image, coord_top_left, horizontal, vertical, i):
     image = Image.fromarray(preprocess_image)
     
