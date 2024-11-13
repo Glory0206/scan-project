@@ -1,14 +1,15 @@
 import easyocr
 import cv2
+import re
 
-def find_text_coordinates_easyocr(image, temp = 'F', target_texts=['문제', '튼제']):  # '문제'의 정보를 가져오기 위함(OCR의 결과로 '튼제'로 인식될 때가 있음)
+def find_text_coordinates_easyocr(image, temp, target_texts=['문제', '제']):  # '문제'의 정보를 가져오기 위함(간혹 '문'이 잘 인식되지 않는 경우가 있음)
     reader = easyocr.Reader(['ko', 'en'])
 
     results = reader.readtext(image)
 
-    num = 0
     coord_top_left = []
     coord_bottom_right = []
+    numbers = []
 
     # 인식된 텍스트와 각 텍스트의 좌표 출력
     print("전체 인식된 한글 텍스트 및 좌표:")
@@ -17,7 +18,6 @@ def find_text_coordinates_easyocr(image, temp = 'F', target_texts=['문제', '�
 
         # 공백을 제거하고 '문제' 텍스트의 좌표 찾기
         clean_text = text.replace(" ", "")
-        print("문자: ",text)
         
         if any(target in clean_text for target in target_texts):
             # 텍스트의 좌상단, 우하단 좌표를 사용하여 사각형 그리기
@@ -25,19 +25,20 @@ def find_text_coordinates_easyocr(image, temp = 'F', target_texts=['문제', '�
             bottom_right = tuple(map(int, bbox[2]))
             print(f"'{text}' 텍스트의 좌표: 좌상단 {top_left}, 우하단 {bottom_right}")
 
+            number = re.findall(r'\d+', text)  # 숫자를 모두 찾기
+            numbers.append(number)
+
             coord_top_left.append(top_left)
             coord_bottom_right.append(bottom_right)
 
             # 네모박스 그리기
-            cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 2)
-            num += 1
+            # cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 2)
 
     if temp == 'F' and coord_top_left and coord_bottom_right:
         coord_top_left.pop(0)
         coord_bottom_right.pop(0)
-        num -= 1
+        numbers.pop(0)
 
-    print("1", coord_top_left)
-    print("2", coord_bottom_right)
+    print("문제들: ",numbers)
 
-    return coord_top_left, coord_bottom_right, num
+    return coord_top_left, coord_bottom_right, numbers

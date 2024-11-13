@@ -22,9 +22,10 @@ preprocess_images = []
 for i in range(len(images)):
     preprocess_images.append(preprocess_image(images[i]))
 
-coord_top_left, coord_bottom_right, num_of_ploblems = find_text_coordinates_easyocr(preprocess_images[0], temp)
+coord_top_left, coord_bottom_right, numbers = find_text_coordinates_easyocr(preprocess_images[0], temp)
+num_of_problems = len(numbers)
 
-horizontal, vertical, pass_text = box_check(coord_top_left)
+horizontal, vertical = box_check(coord_top_left)
 
 if temp == 'F':
     small_horizontal, small_vertical = small_box(coord_top_left[1], coord_bottom_right[1])
@@ -34,7 +35,7 @@ else:
 horizontal -= small_horizontal
 vertical -= small_vertical
 
-print("문제의 개수",num_of_ploblems)
+print("문제의 개수",num_of_problems)
 
 for i in range(len(preprocess_images)):
-    write(images[i], file_name, coord_top_left, horizontal, vertical, num_of_ploblems, i)
+    write(images[i], file_name, coord_top_left, horizontal, vertical, num_of_problems, i)

@@ -34,7 +34,7 @@ pip install -r requirements.txt
 make_testdata_main.py의 path 경로를 알맞게 수정하고, testdata/function/random_rotate.py 내의 반복문 횟수를 수정하여 개수를 설정합니다. 그 후 make_testdata_main.py를 실행합니다.
 
 ## 논술용지 문제란 공백 확인 기능 수행
-main.py
+main.py의 image_path 경로를 알맞게 수정하여 실행합니다.
 
 # 주요 기능
 
