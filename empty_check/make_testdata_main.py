@@ -5,8 +5,8 @@ from testdata.function.preprocessing import preprocess_image
 from function.coord import box_check, small_box
 import os
 
-pdf_path = 'dataset/original_data/Sahmyook2_F.pdf'
-file_name = os.path.splitext(os.path.basename(pdf_path))[0]
+path = 'dataset/original_data/Sahmyook2_F.pdf'
+file_name = os.path.splitext(os.path.basename(path))[0]
 print(file_name)
 
 # 앞면, 뒷면 구분
@@ -15,7 +15,7 @@ if 'F' in file_name:
 else:
     temp = 'B'
 
-images = random_rotate(pdf_path)
+images = random_rotate(path)
 
 preprocess_images = []
 
