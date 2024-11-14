@@ -1,32 +1,13 @@
-# main
+from fastapi import FastAPI
 
-import os
-from function.preprocessing import preprocessing
-from function.word_check import find_text_coordinates_easyocr
-from function.coord import box_check, crop_image, small_box
-from function.blank import is_image_blank
+from services.datasets import make_dataset
+from services.search_blank import searching
 
-images = [] # crop된 이미지들을 담는 list
+app = FastAPI()
 
-image_path = 'dataset/test_datas/math_B.jpg'
-file_name = os.path.splitext(os.path.basename(image_path))[0]
-print(file_name)
+temp = int(input("0: 데이터셋 생성\n1: 공백 확인\n\n입력: "))
 
-preprocess_image = preprocessing(image_path)
-
-coord_top_left, coord_bottom_right, numbers = find_text_coordinates_easyocr(preprocess_image)
-
-small_horizontal, small_vertical = small_box(coord_top_left[1], coord_bottom_right[1]) # '문제' 텍스트의 가로, 세로 길이
-
-horizontal, vertical= box_check(coord_top_left) # 문제란의 가로, 세로 길이
-
-# 길이 조정
-horizontal -= small_horizontal
-vertical -= small_vertical
-
-for i in range(len(coord_top_left)):
-    cropped_image = crop_image(preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i)
-    images.append(cropped_image)
-
-for i in range(len(images)):
-    is_image_blank(images[i], numbers[i])
+if temp == 0:
+    make_dataset()
+elif temp == 1:
+    searching()

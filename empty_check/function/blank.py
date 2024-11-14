@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-def is_image_blank(image, number, min_non_white_pixels=1500):
+def is_image_blank(image, number, min_non_white_pixels=300):
     image = np.array(image)
 
     # 임계값을 사용하여 이진화 (흰색은 255, 나머지는 0으로 변환)

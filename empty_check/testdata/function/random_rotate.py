@@ -1,16 +1,14 @@
 import cv2
 import random
 import numpy as np
-from pdf2image import convert_from_path
 
-def random_rotate(pdf_path):
+def random_rotate(path):
     images = []
 
-    # PDF 페이지를 이미지로 변환 (한 장만 존재하므로 첫 번째 페이지만 가져옴)
-    page_image = convert_from_path(pdf_path, dpi=500)[0]
+    image = cv2.imread(path)
 
     # 이미지 객체를 OpenCV 형식으로 변환
-    open_cv_image = np.array(page_image)
+    open_cv_image = np.array(image)
     for i in range(25): # 생성할 이미지 개수
 
         # 회전 방향
