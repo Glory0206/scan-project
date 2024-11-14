@@ -2,7 +2,7 @@ import easyocr
 import cv2
 import re
 
-def find_text_coordinates_easyocr(image, temp, target_texts=['문제', '제']):  # '문제'의 정보를 가져오기 위함(간혹 '문'이 잘 인식되지 않는 경우가 있음)
+def find_text_coordinates_easyocr(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'의 정보를 가져오기 위함
     reader = easyocr.Reader(['ko', 'en'])
 
     results = reader.readtext(image)
@@ -26,18 +26,15 @@ def find_text_coordinates_easyocr(image, temp, target_texts=['문제', '제']): 
             print(f"'{text}' 텍스트의 좌표: 좌상단 {top_left}, 우하단 {bottom_right}")
 
             number = re.findall(r'\d+', text)  # 숫자를 모두 찾기
-            numbers.append(number)
 
-            coord_top_left.append(top_left)
-            coord_bottom_right.append(bottom_right)
+            if number:
+                if len(number) == 1:
+                    numbers.append(number)
+                    coord_top_left.append(top_left)
+                    coord_bottom_right.append(bottom_right)
 
             # 네모박스 그리기
             # cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 2)
-
-    if temp == 'F' and coord_top_left and coord_bottom_right:
-        coord_top_left.pop(0)
-        coord_bottom_right.pop(0)
-        numbers.pop(0)
 
     print("문제들: ",numbers)
 
