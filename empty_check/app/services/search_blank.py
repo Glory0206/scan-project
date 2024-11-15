@@ -1,8 +1,8 @@
 import os
-from function.preprocessing import preprocessing
-from function.word_check import find_text_coordinates_easyocr
-from function.coord import box_check, crop_image, small_box
-from function.blank import is_image_blank
+from blank.preprocessing import preprocessing
+from blank.word_check import find_text_coordinates_easyocr
+from blank.coord import box_check, crop_image, small_box
+from blank.blank import is_image_blank
 
 def searching():
     images = [] # crop된 이미지들을 담는 list
@@ -29,3 +29,4 @@ def searching():
 
     for i in range(len(images)):
         is_image_blank(images[i], numbers[i])
+        

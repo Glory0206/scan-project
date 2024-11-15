@@ -17,3 +17,4 @@ def is_image_blank(image, number, min_non_white_pixels=300):
     else:
         print(f"해당 논술용지의 {number}번 문제는 공백 상태입니다.")
         print(f"{number}번 문제의 픽셀: ",non_white_pixels)
+        

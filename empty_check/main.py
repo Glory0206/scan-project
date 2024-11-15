@@ -1,13 +1,12 @@
 from fastapi import FastAPI
+from typing import Dict
 
-from services.datasets import make_dataset
-from services.search_blank import searching
+from app.routers.datasets_router import router as datasets_router
 
 app = FastAPI()
 
-temp = int(input("0: 데이터셋 생성\n1: 공백 확인\n\n입력: "))
+app.include_router(datasets_router)
 
-if temp == 0:
-    make_dataset()
-elif temp == 1:
-    searching()
+@app.get("/")
+def root() -> Dict[str, str]:
+  return {"message": "/datasets, /blank"}
