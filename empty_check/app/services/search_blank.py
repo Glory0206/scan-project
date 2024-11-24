@@ -1,13 +1,13 @@
 import os
-from blank.preprocessing import preprocessing
-from blank.word_check import find_text_coordinates_easyocr
-from blank.coord import box_check, crop_image, small_box
-from blank.blank import is_image_blank
+from app.blank.preprocessing import preprocessing
+from app.blank.word_check import find_text_coordinates_easyocr
+from app.blank.coord import box_check, crop_image, small_box
+from app.blank.blank import is_image_blank
 
-def searching():
+def searching(file_path):
     images = [] # crop된 이미지들을 담는 list
 
-    image_path = 'dataset/test_datas/math_B.jpg'
+    image_path = file_path
     file_name = os.path.splitext(os.path.basename(image_path))[0]
     print(file_name)
 
@@ -23,10 +23,13 @@ def searching():
     horizontal -= small_horizontal
     vertical -= small_vertical
 
-    for i in range(len(coord_top_left)):
+    problems_count = len(coord_top_left)
+
+    for i in range(problems_count):
         cropped_image = crop_image(preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i)
         images.append(cropped_image)
 
     for i in range(len(images)):
-        is_image_blank(images[i], numbers[i])
-        
+        blanks = is_image_blank(images[i], numbers[i])
+    
+    return images, numbers, blanks

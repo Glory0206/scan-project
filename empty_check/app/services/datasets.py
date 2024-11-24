@@ -1,16 +1,16 @@
-from make_datast.random_rotate import random_rotate
-from blank.word_check import find_text_coordinates_easyocr
-from make_datast.write import write
-from make_datast.preprocessing import preprocess_image
-from blank.coord import box_check, small_box
+from app.make_datast.random_rotate import random_rotate
+from app.blank.word_check import find_text_coordinates_easyocr
+from app.make_datast.write import write
+from app.make_datast.preprocessing import preprocess_image
+from app.blank.coord import box_check, small_box
 import os
 
-def make_dataset():
-    path = 'dataset/original_data/Sahmyook1_B.jpg'
+def make_dataset(file_content, count):
+    path = file_content
     file_name = os.path.splitext(os.path.basename(path))[0]
     print(file_name)
 
-    images = random_rotate(path)
+    images = random_rotate(path, count)
 
     preprocess_images = []
 

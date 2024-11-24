@@ -2,14 +2,14 @@ import cv2
 import random
 import numpy as np
 
-def random_rotate(path):
+def random_rotate(path, count):
     images = []
 
     image = cv2.imread(path)
 
     # 이미지 객체를 OpenCV 형식으로 변환
     open_cv_image = np.array(image)
-    for i in range(25): # 생성할 이미지 개수
+    for i in range(count): # 생성할 이미지 개수
 
         # 회전 방향
         direction = random.choice([-1, 1])

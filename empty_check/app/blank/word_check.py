@@ -29,7 +29,7 @@ def find_text_coordinates_easyocr(image, target_texts=['[', ']']):  # '[]' 안�
 
             if number:
                 if len(number) == 1:
-                    numbers.append(number)
+                    numbers.append(f'문제 {number}번')
                     coord_top_left.append(top_left)
                     coord_bottom_right.append(bottom_right)
 
