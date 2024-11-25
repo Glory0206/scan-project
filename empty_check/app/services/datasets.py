@@ -1,8 +1,8 @@
 from app.make_datast.random_rotate import random_rotate
-from app.blank.word_check import find_text_coordinates_easyocr
+from app.blank.find_text import find_texts
 from app.make_datast.write import write
 from app.make_datast.preprocessing import preprocess_image
-from app.blank.coord import box_check, small_box
+from app.blank.coord import problem_box_check, small_box
 import os
 
 def make_dataset(file_content, count):
@@ -18,10 +18,10 @@ def make_dataset(file_content, count):
     for i in range(len(images)):
         preprocess_images.append(preprocess_image(images[i]))
 
-    coord_top_left, coord_bottom_right, numbers = find_text_coordinates_easyocr(preprocess_images[0])
+    coord_top_left, coord_bottom_right, numbers = find_texts(preprocess_images[0])
     num_of_problems = len(numbers)
 
-    horizontal, vertical = box_check(coord_top_left)
+    horizontal, vertical = problem_box_check(coord_top_left)
 
     small_horizontal, small_vertical = small_box(coord_top_left[0], coord_bottom_right[0])
 

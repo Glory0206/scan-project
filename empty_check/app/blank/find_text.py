@@ -2,7 +2,7 @@ import easyocr
 import cv2
 import re
 
-def find_text_coordinates_easyocr(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'의 정보를 가져오기 위함
+def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'의 정보를 가져오기 위함
     reader = easyocr.Reader(['ko', 'en'])
 
     results = reader.readtext(image)
@@ -13,11 +13,13 @@ def find_text_coordinates_easyocr(image, target_texts=['[', ']']):  # '[]' 안�
 
     # 인식된 텍스트와 각 텍스트의 좌표 출력
     print("전체 인식된 한글 텍스트 및 좌표:")
+
     for (bbox, text, prob) in results:
         # bbox는 네 개의 꼭지점 좌표를 포함 (좌상단, 우상단, 우하단, 좌하단)
 
         # 공백을 제거하고 '문제' 텍스트의 좌표 찾기
         clean_text = text.replace(" ", "")
+        print("인식 문자: ",text)
         
         if any(target in clean_text for target in target_texts):
             # 텍스트의 좌상단, 우하단 좌표를 사용하여 사각형 그리기
@@ -29,9 +31,18 @@ def find_text_coordinates_easyocr(image, target_texts=['[', ']']):  # '[]' 안�
 
             if number:
                 if len(number) == 1:
+                    number = int(number[0])
                     numbers.append(f'문제 {number}번')
                     coord_top_left.append(top_left)
                     coord_bottom_right.append(bottom_right)
+            elif '문' in text or '제' in text:
+                    numbers.append(f'문제 ?번')
+                    coord_top_left.append(top_left)
+                    coord_bottom_right.append(bottom_right)
+            # elif '감독관' in text:
+            #         numbers.append(f'감독관 확인')
+            #         coord_top_left.append(top_left)
+            #         coord_bottom_right.append(bottom_right)
 
             # 네모박스 그리기
             # cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 2)
@@ -39,3 +50,4 @@ def find_text_coordinates_easyocr(image, target_texts=['[', ']']):  # '[]' 안�
     print("문제들: ",numbers)
 
     return coord_top_left, coord_bottom_right, numbers
+    

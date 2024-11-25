@@ -26,16 +26,11 @@ def random_rotate(path, count):
         # 회전 행렬 생성
         rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
 
-        print("sdfsdfsfsfs")
-
         # 이미지 회전
         rotated_image = cv2.warpAffine(open_cv_image, rotation_matrix, (w, h))
-
-        print("sdfsdfsfsfs")
 
         # 90도 회전 (시계 방향)
         rotated_image = cv2.rotate(rotated_image, cv2.ROTATE_90_CLOCKWISE)
         images.append(rotated_image)
-
-        print("sdfsdfsfsfs")
+        
     return(images)

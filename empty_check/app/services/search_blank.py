@@ -1,7 +1,7 @@
 import os
 from app.blank.preprocessing import preprocessing
-from app.blank.word_check import find_text_coordinates_easyocr
-from app.blank.coord import box_check, crop_image, small_box
+from app.blank.find_text import find_texts
+from app.blank.coord import problem_box_check, crop_image, small_box
 from app.blank.blank import is_image_blank
 
 def searching(file_path):
@@ -14,11 +14,11 @@ def searching(file_path):
 
     preprocess_image = preprocessing(image_path)
 
-    coord_top_left, coord_bottom_right, numbers = find_text_coordinates_easyocr(preprocess_image)
+    coord_top_left, coord_bottom_right, numbers = find_texts(preprocess_image)
 
     small_horizontal, small_vertical = small_box(coord_top_left[1], coord_bottom_right[1]) # '문제' 텍스트의 가로, 세로 길이
 
-    horizontal, vertical= box_check(coord_top_left) # 문제란의 가로, 세로 길이
+    horizontal, vertical= problem_box_check(coord_top_left) # 문제란의 가로, 세로 길이
 
     # 길이 조정
     horizontal -= small_horizontal
