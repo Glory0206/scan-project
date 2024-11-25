@@ -6,6 +6,7 @@ from app.blank.blank import is_image_blank
 
 def searching(file_path):
     images = [] # crop된 이미지들을 담는 list
+    blanks = []
 
     image_path = file_path
     file_name = os.path.splitext(os.path.basename(image_path))[0]
@@ -30,6 +31,7 @@ def searching(file_path):
         images.append(cropped_image)
 
     for i in range(len(images)):
-        blanks = is_image_blank(images[i], numbers[i])
+        blank = is_image_blank(images[i], numbers[i])
+        blanks.append(blank)
     
     return images, numbers, blanks

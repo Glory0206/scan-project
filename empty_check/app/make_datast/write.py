@@ -43,4 +43,4 @@ def write(image, file_name, coord_top_left, horizontal, vertical, num_of_problem
                 y_offset += text_height + 30  # 줄 간격을 적절히 조정(30 픽셀)
 
     # 이미지 저장
-    cv2.imwrite(f"dataset/test_datas/{file_name}_{num}.jpg", image)
+    cv2.imwrite(f"storage/{file_name}_{num}.jpg", image)

@@ -39,4 +39,4 @@ def crop_image(preprocess_image, coord_top_left, coord_bottom_right, horizontal,
 
     cv2.imwrite(f"cropped_resized_image{i}.jpg", cropped_image_np)
 
-    return cropped_image
+    return cropped_image_np
