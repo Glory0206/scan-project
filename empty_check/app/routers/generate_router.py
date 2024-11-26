@@ -10,9 +10,11 @@ router = APIRouter()
 async def make(file: UploadFile, count: int = Form(...)):
     # 저장 경로 설정
     temp = os.path.join("temp")
+    storage = os.path.join("storage")
 
     try:
         os.makedirs(temp, exist_ok=True)
+        os.makedirs(storage, exist_ok=True)
       
         # 업로드된 파일 저장
         file_path = os.path.join(temp, file.filename)
