@@ -59,8 +59,8 @@ def refind(image, coord_top_left, coord_bottom_right):
         x1, y1 = top_left
         x2, y2 = bottom_right
         
-        x1 += 9
-        x2 -= 8
+        x1 += 10
+        x2 -= 9
 
         # 이미지 자르기
         cropped_image = image[y1:y2, x1:x2]
@@ -85,9 +85,9 @@ def refind(image, coord_top_left, coord_bottom_right):
             if detected_numbers:
                 numbers.extend(detected_numbers)  # 숫자를 리스트에 추가
 
-        # 전처리된 이미지 보기
-        cv2.imshow(f"박스 {i + 1} (전처리)", binary)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # # 전처리된 이미지 보기
+        # cv2.imshow(f"박스 {i + 1} (전처리)", binary)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
         
     return numbers
