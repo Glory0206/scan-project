@@ -4,15 +4,11 @@ from app.blank.find_text import find_texts
 from app.blank.coord import problem_box_check, crop_image, small_box
 from app.blank.blank import is_image_blank
 
-def searching(file_path):
+def searching(image):
     images = [] # crop된 이미지들을 담는 list
     blanks = []
 
-    image_path = file_path
-    file_name = os.path.splitext(os.path.basename(image_path))[0]
-    print(file_name)
-
-    preprocess_image = preprocessing(image_path)
+    preprocess_image = preprocessing(image)
 
     coord_top_left, coord_bottom_right, numbers = find_texts(preprocess_image)
 

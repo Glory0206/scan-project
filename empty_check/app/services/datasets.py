@@ -5,13 +5,8 @@ from app.make_datast.preprocessing import preprocess_image
 from app.blank.coord import problem_box_check, small_box
 import os
 
-def make_dataset(file_content, count):
-    print("업로드 파일: ",file_content)
-    path = file_content
-    file_name = os.path.splitext(os.path.basename(path))[0]
-    print("파일 이름: ",file_name)
-
-    images = random_rotate(path, count)
+def make_dataset(image, count, file_name):
+    images = random_rotate(image, count)
 
     preprocess_images = []
 

@@ -5,23 +5,23 @@ import os
 import base64
 import cv2
 import shutil
+import numpy as np
 
 router = APIRouter()
 
 @router.post("/analysis")
 async def make(file: UploadFile):
-    # 저장 경로 설정
-    temp = os.path.join("temp")
-
     try:
-        os.makedirs(temp, exist_ok=True)
-      
-        # 업로드된 파일 저장
-        file_path = os.path.join(temp, file.filename)
-        with open(file_path, "wb") as f:
-            f.write(await file.read())
-        
-        results, numbers, blanks = searching(file_path)
+        # 업로드된 파일 읽기
+        file_bytes = await file.read()
+
+        # numpy 배열로 변환 (파일 바이너리를 OpenCV에서 처리 가능하도록)
+        np_array = np.frombuffer(file_bytes, np.uint8)
+        image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+
+        if image is None:
+            raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")          
+        results, numbers, blanks = searching(image)
 
         print("results: ",results)
         print("numbers: ",numbers)
@@ -50,9 +50,3 @@ async def make(file: UploadFile):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-    finally:
-        # 작업 완료 후 temp 폴더 삭제
-        if os.path.exists(temp):
-            shutil.rmtree(temp)
-            print(f"임시 폴더 '{temp}'가 삭제되었습니다.")

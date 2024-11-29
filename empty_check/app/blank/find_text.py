@@ -60,13 +60,13 @@ def refind(image, coord_top_left, coord_bottom_right):
         x2, y2 = bottom_right
         
         x1 += 9
-        x2 -= 9
+        x2 -= 8
 
         # 이미지 자르기
         cropped_image = image[y1:y2, x1:x2]
 
         # 전처리: 이진화 (Thresholding)
-        _, binary = cv2.threshold(cropped_image, 100, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        _, binary = cv2.threshold(cropped_image, 20, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
         # 전처리된 이미지를 저장
         preprocessed_path = f"preprocessed_cropped_{i + 1}.jpg"

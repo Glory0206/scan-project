@@ -2,10 +2,8 @@ import cv2
 import random
 import numpy as np
 
-def random_rotate(path, count):
+def random_rotate(image, count):
     images = []
-
-    image = cv2.imread(path)
 
     # 이미지 객체를 OpenCV 형식으로 변환
     open_cv_image = np.array(image)
