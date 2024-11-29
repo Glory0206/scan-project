@@ -3,6 +3,7 @@ from app.blank.preprocessing import preprocessing
 from app.blank.find_text import find_texts
 from app.blank.coord import problem_box_check, crop_image, small_box
 from app.blank.blank import is_image_blank
+from app.blank.numbering import sorting
 
 def searching(image):
     images = [] # crop된 이미지들을 담는 list
@@ -29,5 +30,7 @@ def searching(image):
     for i in range(len(images)):
         blank = is_image_blank(images[i], numbers[i])
         blanks.append(blank)
+
+    numbers_list, blanks_list = sorting(numbers, blanks)
     
-    return images, numbers, blanks
+    return images, numbers_list, blanks_list

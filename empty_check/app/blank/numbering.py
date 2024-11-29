@@ -1,5 +1,4 @@
 def sorting(numbers, blanks):
-    print("aaaaaaaaaaaaaaaaaaaaaaa")
     paired_dict = dict(zip(numbers, blanks))
     sorted_dict = dict(sorted(paired_dict.items()))
     
