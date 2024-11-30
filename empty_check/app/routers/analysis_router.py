@@ -23,7 +23,6 @@ async def make(file: UploadFile):
             raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")    
         results, numbers, blanks = searching(image)
 
-        print("results: ",results)
         print("numbers: ", numbers)
         print("blanks: ", blanks)
         

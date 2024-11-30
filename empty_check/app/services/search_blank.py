@@ -1,7 +1,7 @@
 import os
 from app.blank.preprocessing import preprocessing
 from app.blank.find_text import find_texts
-from app.blank.coord import problem_box_check, crop_image, small_box
+from app.blank.coord import problem_box_check, crop_problems_image, small_box, crop_sign_image
 from app.blank.blank import is_image_blank
 from app.blank.numbering import sorting
 
@@ -11,7 +11,7 @@ def searching(image):
 
     preprocess_image = preprocessing(image)
 
-    coord_top_left, coord_bottom_right, numbers = find_texts(preprocess_image)
+    coord_top_left, coord_bottom_right, numbers, sign_box = find_texts(preprocess_image)
 
     small_horizontal, small_vertical = small_box(coord_top_left[1], coord_bottom_right[1]) # '문제' 텍스트의 가로, 세로 길이
 
@@ -23,8 +23,14 @@ def searching(image):
 
     problems_count = len(coord_top_left)
 
+    if sign_box != []:
+        print("dafsdafasfsdf")
+        sign_image = crop_sign_image(preprocess_image, sign_box)
+        images.append(sign_image)
+        numbers.insert(0, '감독관 확인')
+
     for i in range(problems_count):
-        cropped_image = crop_image(preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i)
+        cropped_image = crop_problems_image(preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i)
         images.append(cropped_image)
 
     for i in range(len(images)):

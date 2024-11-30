@@ -9,6 +9,7 @@ def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'�
 
     coord_top_left = []
     coord_bottom_right = []
+    sign_box = []
 
     # 인식된 텍스트와 각 텍스트의 좌표 출력
     print("전체 인식된 한글 텍스트 및 좌표:")
@@ -18,7 +19,7 @@ def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'�
 
         # 공백을 제거하고 '문제' 텍스트의 좌표 찾기
         clean_text = text.replace(" ", "")
-        print("인식 문자: ",text)
+        # print("인식 문자: ",text)
         
         if any(target in clean_text for target in target_texts):
             # 텍스트의 좌상단, 우하단 좌표를 사용하여 사각형 그리기
@@ -30,24 +31,23 @@ def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'�
 
             if number:
                 if len(number) == 1:
-                    number = int(number[0])
                     coord_top_left.append(top_left)
                     coord_bottom_right.append(bottom_right)
             elif '문' in text or '제' in text:
                     coord_top_left.append(top_left)
                     coord_bottom_right.append(bottom_right)
-            # elif '감독관' in text:
-            #         numbers.append(f'감독관 확인')
-            #         coord_top_left.append(top_left)
-            #         coord_bottom_right.append(bottom_right)
+        elif any(char in clean_text for char in ['감', '독']):
+            top_left = tuple(map(int, bbox[0]))
+            bottom_right = tuple(map(int, bbox[2]))
+            sign_box = [top_left, bottom_right]
+
+            print(f"'감독 관련 텍스트: {text}'의 좌표: 좌상단 {top_left}, 우하단 {bottom_right}")
 
             # 네모박스 그리기
             # cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 2)
     numbers = refind(image, coord_top_left, coord_bottom_right)
 
-    print("문제들: ",numbers)
-
-    return coord_top_left, coord_bottom_right, numbers
+    return coord_top_left, coord_bottom_right, numbers, sign_box
     
 def refind(image, coord_top_left, coord_bottom_right):
     reader = easyocr.Reader(['ko', 'en'])
@@ -66,12 +66,12 @@ def refind(image, coord_top_left, coord_bottom_right):
         cropped_image = image[y1:y2, x1:x2]
 
         # 전처리: 이진화 (Thresholding)
-        _, binary = cv2.threshold(cropped_image, 20, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        _, binary = cv2.threshold(cropped_image, 30, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
         # 전처리된 이미지를 저장
         preprocessed_path = f"preprocessed_cropped_{i + 1}.jpg"
-        cv2.imwrite(preprocessed_path, binary)
-        print(f"박스 {i + 1}: 전처리된 이미지가 '{preprocessed_path}'에 저장되었습니다.")
+        # cv2.imwrite(preprocessed_path, binary)
+        # print(f"박스 {i + 1}: 전처리된 이미지가 '{preprocessed_path}'에 저장되었습니다.")
 
         # EasyOCR로 다시 인식
         reanalyzed_results = reader.readtext(binary)
@@ -85,7 +85,7 @@ def refind(image, coord_top_left, coord_bottom_right):
             if detected_numbers:
                 numbers.extend(detected_numbers)  # 숫자를 리스트에 추가
 
-        # # 전처리된 이미지 보기
+        # 전처리된 이미지 보기
         # cv2.imshow(f"박스 {i + 1} (전처리)", binary)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
