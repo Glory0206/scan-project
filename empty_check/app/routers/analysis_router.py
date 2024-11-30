@@ -20,12 +20,11 @@ async def make(file: UploadFile):
         image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
 
         if image is None:
-            raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")          
+            raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")    
         results, numbers, blanks = searching(image)
 
-        print("results: ",results)
-        print("numbers: ",numbers)
-        print("blanks: ",blanks)
+        print("numbers: ", numbers)
+        print("blanks: ", blanks)
         
         # 응답 데이터 구조화
         formatted_results = []

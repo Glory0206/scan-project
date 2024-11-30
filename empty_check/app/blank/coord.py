@@ -23,7 +23,7 @@ def small_box(coord_top_left, coord_bottom_right):
 
     return horizontal, vertical
 
-def crop_image(preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i, alpha=20):
+def crop_problems_image(preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i, alpha=20):
     masked_image = cv2.rectangle(preprocess_image, coord_top_left[i], coord_bottom_right[i], (255, 255, 255), thickness=cv2.FILLED)
     image = Image.fromarray(masked_image)
     # image = Image.fromarray(preprocess_image)
@@ -38,5 +38,25 @@ def crop_image(preprocess_image, coord_top_left, coord_bottom_right, horizontal,
     cropped_image_np = np.array(cropped_image)
 
     # cv2.imwrite(f"cropped_resized_image{i}.jpg", cropped_image_np)
+
+    return cropped_image_np
+
+def crop_sign_image(preprocess_image, sign_box):
+    image = Image.fromarray(preprocess_image)
+
+    top_left = sign_box[0]
+    bottom_right = sign_box[1]
+
+    x1, y1 = top_left[0] + 165 ,top_left[1]
+    x2, y2 = bottom_right[0] + 330, bottom_right[1] + 38
+
+    image_with_box = preprocess_image.copy()
+    #cv2.rectangle(image_with_box, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    #cv2.imwrite("image_with_box.jpg", image_with_box)
+
+    cropped_image = image.crop((x1, y1, x2, y2))
+    cropped_image_np = np.array(cropped_image)
+
+    #cv2.imwrite(f"sign_image.jpg", cropped_image_np)
 
     return cropped_image_np

@@ -1,6 +1,6 @@
 from app.make_datast.random_rotate import random_rotate
 from app.blank.find_text import find_texts
-from app.make_datast.write import write
+from app.make_datast.write import write_problem, write_sign
 from app.make_datast.preprocessing import preprocess_image
 from app.blank.coord import problem_box_check, small_box
 import os
@@ -13,7 +13,7 @@ def make_dataset(image, count, file_name):
     for i in range(len(images)):
         preprocess_images.append(preprocess_image(images[i]))
 
-    coord_top_left, coord_bottom_right, numbers = find_texts(preprocess_images[0])
+    coord_top_left, coord_bottom_right, numbers, sign_box = find_texts(preprocess_images[0])
     num_of_problems = len(numbers)
 
     horizontal, vertical = problem_box_check(coord_top_left)
@@ -25,6 +25,12 @@ def make_dataset(image, count, file_name):
 
     print("문제의 개수",num_of_problems)
 
-    for i in range(len(preprocess_images)):
-        write(images[i], file_name, coord_top_left, horizontal, vertical, num_of_problems, i)
-        
+    if sign_box == []:
+        for i in range(len(preprocess_images)):
+            write_problem(images[i], file_name, coord_top_left, horizontal, vertical, num_of_problems, i)
+    else:
+        sign_written_image = []
+
+        for i in range(len(preprocess_images)):
+            sign_written_image = write_sign(images[i], sign_box)
+            write_problem(sign_written_image, file_name, coord_top_left, horizontal, vertical, num_of_problems, i)
