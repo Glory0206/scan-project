@@ -14,7 +14,7 @@ def write_problem(image, file_name, coord_top_left, horizontal, vertical, num_of
             center_y = (coord_top_left[i][1] + y1) // 2
 
             # 이미지에 텍스트 작성
-            texts = ["Hello\n2025", "2a + 3y", "a - d - c", "Glory\n2001", "Succes in not final,\nfailure is not fatal", "5", "1", "105 / 3 = 35"]
+            texts = ["Hello\n2025", "2a + 3y", "a - d - c", "Glory\n2001", "Succes in not final,\nfailure is not fatal", "1", "105 / 3 = 35"]
             font = cv2.FONT_HERSHEY_SIMPLEX
             font_scale = 2
             font_color = (0, 0, 0)  # (B, G, R)

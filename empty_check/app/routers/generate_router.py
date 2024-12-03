@@ -23,7 +23,8 @@ async def make(file: UploadFile, count: int = Form(...)):
         image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
 
         if image is None:
-            raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")        
+            raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")      
+          
         # make_dataset 함수 호출
         make_dataset(image, count, file.filename)
 

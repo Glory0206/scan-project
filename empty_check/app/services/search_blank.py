@@ -24,7 +24,6 @@ def searching(image):
     problems_count = len(coord_top_left)
 
     if sign_box != []:
-        print("dafsdafasfsdf")
         sign_image = crop_sign_image(preprocess_image, sign_box)
         images.append(sign_image)
         numbers.insert(0, '감독관 확인')
