@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import './UploadSection.css';
 import axios from 'axios';
+import AnalyzeSection from '../Analyze/AnalyzeSection';
 
 const UploadSection = () => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -16,6 +17,7 @@ const UploadSection = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isCoordMode, setIsCoordMode] = useState(false);
+  const [fileData, setFileData] = useState([]); 
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -45,38 +47,49 @@ const UploadSection = () => {
 
   const handleAnalyze = async () => {
     if (!selectedImages.length) {
-      setShowError(true);
-      setTimeout(() => setShowError(false), 2000);
+      alert('이미지를 업로드 해주세요.');
       return;
     }
-
+  
     try {
       setIsAnalyzing(true);
-      const formData = new FormData();
-      
-      for await (const image of selectedImages) {
-        const response = await fetch(image.url);
-        const blob = await response.blob();
-        formData.append('images', blob, image.name);
-      }
-      console.log('formData', formData);
-      
-
-      const { data } = await axios.post('http://localhost:8000/analyze', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: ({ loaded, total }) => {
-          setUploadProgress(Math.round((loaded * 100) / total));
-        },
-        timeout: 30000,
-      });
-      console.log('Server Response:', data);
-      return data;
-      
+  
+      // 새로 추가할 파일 데이터 리스트
+      const newFileData = await Promise.all(
+        selectedImages.map(async (image) => {
+          const formData = new FormData();
+          const response = await fetch(image.url);
+          const blob = await response.blob();
+          formData.append('images', blob, image.name);
+  
+          // 서버 요청
+          const { data } = await axios.post('http://localhost:8000/analyze', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            onUploadProgress: ({ loaded, total }) => {
+              setUploadProgress(Math.round((loaded * 100) / total));
+            },
+            timeout: 30000,
+          });
+  
+          // 데이터가 유효하면 파일별 데이터를 반환
+          if (data.results && data.results.length > 0) {
+            return {
+              sheetName: data.results[0]?.sheetName || 'Unknown Sheet',
+              areas: data.results[0]?.areas || [],
+            };
+          } else {
+            console.error('results 배열이 없습니다:', data);
+            return null;
+          }
+        })
+      );
+  
+      // 유효한 파일 데이터만 필터링 후 추가
+      setFileData((prev) => [...prev, ...newFileData.filter((file) => file !== null)]);
+  
+      console.log('추가된 파일 데이터:', newFileData);
     } catch (error) {
-      const errorMessage = error?.response?.data?.message ?? error.message;
-      console.error('이미지 분석 실패:', errorMessage);
-      throw error;
-      
+      console.error('이미지 분석 실패:', error);
     } finally {
       setIsAnalyzing(false);
       setUploadProgress(0);
@@ -207,13 +220,16 @@ const UploadSection = () => {
               <span className="file-name">{fileName}</span>
             </label>
           </div>
-          <button 
-            className={`analyze-button ${isAnalyzing ? 'analyzing' : ''}`}
-            onClick={handleAnalyze}
-            disabled={isAnalyzing}
-          >
-            {isAnalyzing ? `분석 중 ${uploadProgress}%` : '분석'}
-          </button>
+          <div>
+            <button 
+              className={`analyze-button ${isAnalyzing ? 'analyzing' : ''}`}
+              onClick={handleAnalyze}
+              disabled={isAnalyzing}
+            >
+              {isAnalyzing ? `분석 중 ${uploadProgress}%` : '분석'}
+            </button>
+            <AnalyzeSection fileData={fileData}/>
+          </div>
         </div>
 
         <div className={`error-message ${showError ? 'show' : ''}`}>
