@@ -6,7 +6,8 @@ from app.blank.blank import is_image_blank
 from app.blank.numbering import sorting
 
 def searching(image):
-    images = [] # crop된 이미지들을 담는 list
+    masked_images = [] # crop된 이미지들을 담는 list
+    origin_images = []
     blanks = []
 
     preprocess_image = preprocessing(image)
@@ -24,18 +25,20 @@ def searching(image):
     problems_count = len(coord_top_left)
 
     if sign_box != []:
-        sign_image = crop_sign_image(preprocess_image, sign_box)
-        images.append(sign_image)
+        sign_image, origin_sign_image = crop_sign_image(image, preprocess_image, sign_box)
+        masked_images.append(sign_image)
+        origin_images.append(origin_sign_image)
         numbers.insert(0, '감독관 확인')
 
     for i in range(problems_count):
-        cropped_image = crop_problems_image(preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i)
-        images.append(cropped_image)
+        masked_cropped_image, cropped_origin_image = crop_problems_image(image, preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i)
+        masked_images.append(masked_cropped_image)
+        origin_images.append(cropped_origin_image)
 
-    for i in range(len(images)):
-        blank = is_image_blank(images[i], numbers[i])
+    for i in range(len(masked_images)):
+        blank = is_image_blank(masked_images[i], numbers[i])
         blanks.append(blank)
 
-    numbers_list, blanks_list, images_list = sorting(numbers, blanks, images)
+    numbers_list, blanks_list, images_list = sorting(numbers, blanks, origin_images)
     
     return images_list, numbers_list, blanks_list
