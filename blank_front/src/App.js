@@ -1,6 +1,5 @@
 import Header from './components/Layout/Header';
 import UploadSection from './components/Upload/UploadSection';
-import AnalyzeSection from './components/Analyze/AnalyzeSection';
 import './App.css';
 
 function App() {
@@ -9,7 +8,6 @@ function App() {
       <Header />
       <div className="content">
         <UploadSection />
-        <AnalyzeSection/>
       </div>
     </div>
   );

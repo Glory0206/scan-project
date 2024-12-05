@@ -3,17 +3,18 @@ import './AnalyzeSection.css';
 
 const AnalyzeSection = ({ fileData = [] }) => {
   const [selectedFileIndex, setSelectedFileIndex] = useState(0); // 선택된 파일의 인덱스
+  const [selectedFile, setSelectedFile] = useState({areas: []});
 
   useEffect(() => {
     console.log('AnalyzeSection에서 받은 fileData:', fileData);
-  }, [fileData]);
+    if(fileData[selectedFileIndex]){
+      setSelectedFile(fileData[selectedFileIndex])
+    }
+  }, [fileData, selectedFileIndex]);
 
-  // 선택된 파일 데이터 가져오기
-  const selectedFile = fileData[selectedFileIndex] || {};
-
-  if (!fileData || fileData.length === 0) {
-    return <p>분석 결과가 없습니다.</p>;
-  }
+  useEffect(() =>{
+    console.log("areas: ", selectedFile.areas)
+  })
 
   return (
     <div className="analyze-section">
@@ -37,29 +38,31 @@ const AnalyzeSection = ({ fileData = [] }) => {
           </div>
 
           {/* 영역 상세 정보 */}
-          <div className="view-section">
+          <div>
             <h3>영역 상세 정보</h3>
-            {selectedFile.areas && selectedFile.areas.length > 0 ? (
-              selectedFile.areas.map((area, index) => (
-                <div key={index} className="analysis-result">
-                  <p>
-                    <strong>Area Name:</strong> {area.areaName || 'Unnamed'}
-                  </p>
-                  <p>
-                    <strong>Is Blank:</strong> {area.isBlank === 'T' ? 'Yes' : 'No'}
-                  </p>
-                  <div className="cropped-image">
-                    <img
-                      src={area.croppedImage}
-                      alt={`Cropped ${index}`}
-                      loading="lazy"
-                    />
+              <div className="view-section">
+              {selectedFile.areas && selectedFile.areas.length > 0 ? (
+                selectedFile.areas.map((area, index) => (
+                  <div key={index} className="analysis-result">
+                    <p>
+                      <strong>Area Name:</strong> {area.areaName}
+                    </p>
+                    <p>
+                      <strong>Is Blank:</strong> {area.isBlank === 'T' ? 'Yes' : 'No'}
+                    </p>
+                    <div className="cropped-image">
+                      <img
+                        src={area.croppedImage}
+                        alt={`Cropped ${index}`}
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p>영역 데이터가 없습니다.</p>
-            )}
+                ))
+              ) : (
+                <p>영역 데이터가 없습니다. 망했습니다!!</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

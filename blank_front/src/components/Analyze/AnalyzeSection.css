@@ -45,6 +45,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow-y: auto; /* 세로 스크롤 활성화 */
+  padding-right: 10px; /* 스크롤바와 콘텐츠 간 간격 */
+  box-sizing: border-box; /* 패딩과 스크롤바를 포함해 크기 계산 */
 }
 
 .image-list {
@@ -64,4 +67,11 @@
   color: #64748b;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #e2e8f0;
+}
+
+.analysis-result {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
 }
