@@ -37,9 +37,10 @@ def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'�
                     coord_top_left.append(top_left)
                     coord_bottom_right.append(bottom_right)
         elif any(char in clean_text for char in ['감', '독']):
-            top_left = tuple(map(int, bbox[0]))
-            bottom_right = tuple(map(int, bbox[2]))
-            sign_box = [top_left, bottom_right]
+            if sign_box == []:
+                top_left = tuple(map(int, bbox[0]))
+                bottom_right = tuple(map(int, bbox[2]))
+                sign_box = [top_left, bottom_right]
 
             print(f"'감독 관련 텍스트: {text}'의 좌표: 좌상단 {top_left}, 우하단 {bottom_right}")
 
