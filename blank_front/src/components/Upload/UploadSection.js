@@ -68,7 +68,7 @@ const UploadSection = () => {
             onUploadProgress: ({ loaded, total }) => {
               setUploadProgress(Math.round((loaded * 100) / total));
             },
-            timeout: 30000,
+            timeout: 100000,
           });
   
           // 데이터가 유효하면 파일별 데이터를 반환

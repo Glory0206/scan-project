@@ -19,6 +19,11 @@ const AnalyzeSection = ({ fileData = [] }) => {
   return (
     <div className="analyze-section">
       <div className="analyze-container">
+        <div className="input-group">
+          <div className="file-information">
+            <h3>영역 상세 정보</h3>
+          </div>
+        </div>
         <div className="content-wrapper">
           {/* 이미지 목록: Sheet Names */}
           <div className="image-list">
@@ -39,7 +44,6 @@ const AnalyzeSection = ({ fileData = [] }) => {
 
           {/* 영역 상세 정보 */}
           <div>
-            <h3>영역 상세 정보</h3>
               <div className="view-section">
               {selectedFile.areas && selectedFile.areas.length > 0 ? (
                 selectedFile.areas.map((area, index) => (
