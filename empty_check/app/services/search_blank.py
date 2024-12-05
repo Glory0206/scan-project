@@ -36,6 +36,6 @@ def searching(image):
         blank = is_image_blank(images[i], numbers[i])
         blanks.append(blank)
 
-    numbers_list, blanks_list = sorting(numbers, blanks)
+    numbers_list, blanks_list, images_list = sorting(numbers, blanks, images)
     
-    return images, numbers_list, blanks_list
+    return images_list, numbers_list, blanks_list

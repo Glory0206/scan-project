@@ -60,7 +60,7 @@ const AnalyzeSection = ({ fileData = [] }) => {
                   </div>
                 ))
               ) : (
-                <p>영역 데이터가 없습니다. 망했습니다!!</p>
+                <p>영역 데이터가 없습니다.</p>
               )}
             </div>
           </div>

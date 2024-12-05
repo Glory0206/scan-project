@@ -24,7 +24,7 @@ async def analyze_images(images: List[UploadFile] = File(...)):
 
             if image is None:
                 raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")    
-            results, numbers, blanks = searching(image)
+            images, numbers, blanks = searching(image)
 
             print("numbers: ", numbers)
             print("blanks: ", blanks)
@@ -32,7 +32,7 @@ async def analyze_images(images: List[UploadFile] = File(...)):
             # 응답 데이터 구조화
             formatted_results = []
 
-            for idx, cropped_image in enumerate(results):
+            for idx, cropped_image in enumerate(images):
                 # 이미지 데이터를 Base64로 변환
                 _, buffer = cv2.imencode('.jpg', cropped_image)
                 base64_image = base64.b64encode(buffer).decode("utf-8")
