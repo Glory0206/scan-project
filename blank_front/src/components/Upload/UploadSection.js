@@ -248,6 +248,7 @@ const UploadSection = () => {
           <div className="preview-section">
             <div className="image-controls">
               <div className="left-controls">
+                {/*
                 <button 
                   className="original-view-button"
                   onClick={handleOriginalView}
@@ -260,6 +261,7 @@ const UploadSection = () => {
                 >
                   <span>좌표설정 {isCoordMode ? 'ON' : 'OFF'}</span>
                 </button>
+                }*/}
                 <button 
                   className="delete-image-button"
                   onClick={handleDeleteImage}

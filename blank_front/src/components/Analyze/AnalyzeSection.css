@@ -40,21 +40,44 @@
   visibility: visible;
 }
 
+.data-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+  height: 2.5rem;
+}
+
 .view-section {
   flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: auto; /* 세로 스크롤 활성화 */
-  padding-right: 10px; /* 스크롤바와 콘텐츠 간 간격 */
-  box-sizing: border-box; /* 패딩과 스크롤바를 포함해 크기 계산 */
+  width: 100%;
+}
+
+.preview-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cropped-image img {
+  width: 100%; /* 원하는 너비로 조정 */
+  height: 180%; /* 비율 유지 */
+  border: 1px solid #000000;
+  max-width: 100%; /* 부모 요소를 벗어나지 않도록 제한 */
+  object-fit: contain; /* 선택 사항: 이미지의 잘림 방지 또는 균형 잡힌 크기 조정 */
 }
 
 .image-list {
   width: 180px;
   padding: 0.75rem;
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #44cce5;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
@@ -76,6 +99,11 @@
   background-color: #f9f9f9;
 }
 
+.left-controls {
+  display: flex;
+  gap: 8px;
+}
+
 .input-group {
   display: flex;
   gap: 1rem;
@@ -91,11 +119,56 @@
   flex: 1; /* Flex 속성 */
   position: relative; /* 위치 지정 */
   z-index: 1; /* z-index 설정 */
-  border: 2px dashed red; /* 박스의 가장자리 선 */
-  background-color: white;
+  border: 1px solid #44cce5;
+  border-radius: 10px;
   display: flex; /* Flexbox 활성화 */
   justify-content: center; /* 가로 중앙 정렬 */
   align-items: center; /* 세로 중앙 정렬 */
-  font-size: 16px; /* 글자 크기 */
+  font-size: 14px; /* 글자 크기 */
+  color: #3958e3;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.label span {
+  font-weight: bold; /* 텍스트 강조 */
+  color: #3958e3; /* 주요 색상 적용 */
+  font-size: 16px; /* 적당한 크기 설정 */
+}
+
+.label {
+  margin-bottom: 10px; /* 요소 간 간격 추가 */
+  font-family: Arial, sans-serif; /* 읽기 좋은 글꼴 */
+  color: #333; /* 일반 텍스트 색상 */
+}
+
+.delete-image-button {
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.data-preview {
+  flex: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #44cce5;
+  height: calc(100% - 3rem);
+  overflow-y: auto; /* 세로 스크롤 활성화 */
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+  box-sizing: border-box; /* 패딩과 스크롤바 포함한 크기 계산 */
 }

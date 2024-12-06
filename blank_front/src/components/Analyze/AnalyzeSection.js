@@ -16,6 +16,12 @@ const AnalyzeSection = ({ fileData = [] }) => {
     console.log("areas: ", selectedFile.areas)
   })
 
+  const handleClearData = () => {
+    fileData = []
+    setSelectedFileIndex(0); // 선택된 파일 인덱스 초기화
+    setSelectedFile({ areas: [] }); // 선택된 파일 초기화
+  };
+
   return (
     <div className="analyze-section">
       <div className="analyze-container">
@@ -43,17 +49,29 @@ const AnalyzeSection = ({ fileData = [] }) => {
           </div>
 
           {/* 영역 상세 정보 */}
-          <div>
-              <div className="view-section">
+          <div className="view-section">
+            <div className="data-controls">
+              <div className="left-controls">
+                  <button 
+                    className="delete-image-button"
+                    onClick={handleClearData}
+                  >
+                    <span>데이터 초기화</span>
+                  </button>
+              </div>
+            </div>
+            <div className='data-preview'>
               {selectedFile.areas && selectedFile.areas.length > 0 ? (
                 selectedFile.areas.map((area, index) => (
                   <div key={index} className="analysis-result">
-                    <p>
-                      <strong>Area Name:</strong> {area.areaName}
-                    </p>
-                    <p>
-                      <strong>Is Blank:</strong> {area.isBlank === 'T' ? 'Yes' : 'No'}
-                    </p>
+                    <div className='number-blank'>
+                      <p className='label'>
+                        <span>문제 번호:</span> {area.areaName}
+                      </p>
+                      <p className='label'>
+                        <span>공백 상태:</span> {area.isBlank === 'T' ? '공백' : '적혀있음'}
+                      </p>
+                    </div>
                     <div className="cropped-image">
                       <img
                         src={area.croppedImage}
@@ -63,8 +81,7 @@ const AnalyzeSection = ({ fileData = [] }) => {
                     </div>
                   </div>
                 ))
-              ) : (
-                <p>영역 데이터가 없습니다.</p>
+              ) : (<div></div>
               )}
             </div>
           </div>
