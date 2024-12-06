@@ -54,40 +54,34 @@ const UploadSection = () => {
     try {
       setIsAnalyzing(true);
   
-      // 새로 추가할 파일 데이터 리스트
-      const newFileData = await Promise.all(
-        selectedImages.map(async (image) => {
-          const formData = new FormData();
-          const response = await fetch(image.url);
-          const blob = await response.blob();
-          formData.append('images', blob, image.name);
+      const formData = new FormData();
+      for (const image of selectedImages) {
+        const response = await fetch(image.url);
+        const blob = await response.blob();
+        formData.append('images', blob, image.name);
+      }
   
-          // 서버 요청
-          const { data } = await axios.post('http://localhost:8000/analyze', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-            onUploadProgress: ({ loaded, total }) => {
-              setUploadProgress(Math.round((loaded * 100) / total));
-            },
-            timeout: 100000,
-          });
+      // 서버 요청
+      const { data } = await axios.post('http://localhost:8000/analyze', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: ({ loaded, total }) => {
+          setUploadProgress(Math.round((loaded * 100) / total));
+        },
+        timeout: 100000,
+      });
   
-          // 데이터가 유효하면 파일별 데이터를 반환
-          if (data.results && data.results.length > 0) {
-            return {
-              sheetName: data.results[0]?.sheetName || 'Unknown Sheet',
-              areas: data.results[0]?.areas || [],
-            };
-          } else {
-            console.error('results 배열이 없습니다:', data);
-            return null;
-          }
-        })
-      );
+      // 데이터 처리
+      if (data.results && data.results.length > 0) {
+        const newFileData = data.results.map((result) => ({
+          sheetName: result?.sheetName || 'Unknown Sheet',
+          areas: result?.areas || [],
+        }));
   
-      // 유효한 파일 데이터만 필터링 후 추가
-      setFileData((prev) => [...prev, ...newFileData.filter((file) => file !== null)]);
-  
-      console.log('추가된 파일 데이터:', newFileData);
+        setFileData((prev) => [...prev, ...newFileData]);
+        console.log('추가된 파일 데이터:', newFileData);
+      } else {
+        console.error('results 배열이 없습니다:', data);
+      }
     } catch (error) {
       console.error('이미지 분석 실패:', error);
     } finally {

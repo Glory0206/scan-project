@@ -6,6 +6,7 @@ import os
 import base64
 import cv2
 import shutil
+import easyocr
 import numpy as np
 
 router = APIRouter()
@@ -13,7 +14,10 @@ router = APIRouter()
 @router.post("/analyze")
 async def analyze_images(images: List[UploadFile] = File(...)):
     try:
+        reader = easyocr.Reader(['ko', 'en'])   
+    
         response_data = []
+        
         for img in images:
             # 업로드된 파일 읽기
             file_bytes = await img.read()
@@ -24,7 +28,7 @@ async def analyze_images(images: List[UploadFile] = File(...)):
 
             if image is None:
                 raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")    
-            images, numbers, blanks = searching(image)
+            images, numbers, blanks = searching(reader, image)
 
             print("numbers: ", numbers)
             print("blanks: ", blanks)

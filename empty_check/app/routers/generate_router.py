@@ -3,6 +3,7 @@ import os
 import cv2
 import numpy as np
 import shutil
+import easyocr
 
 from app.services.datasets import make_dataset
 
@@ -13,6 +14,7 @@ async def make(file: UploadFile, count: int = Form(...)):
     storage = os.path.join("storage")
 
     try:
+        reader = easyocr.Reader(['ko', 'en']) 
         os.makedirs(storage, exist_ok=True)
 
         # 업로드된 파일 읽기
@@ -26,7 +28,7 @@ async def make(file: UploadFile, count: int = Form(...)):
             raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")      
           
         # make_dataset 함수 호출
-        make_dataset(image, count, file.filename)
+        make_dataset(reader, image, count, file.filename)
 
         return {
             "message": f"{count}개의 샘플 데이터가 생성되었습니다.",
