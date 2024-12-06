@@ -2,9 +2,7 @@ import easyocr
 import cv2
 import re
 
-def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'의 정보를 가져오기 위함
-    reader = easyocr.Reader(['ko', 'en'])
-
+def find_texts(reader, image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'의 정보를 가져오기 위함
     results = reader.readtext(image)
 
     coord_top_left = []
@@ -46,13 +44,11 @@ def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'�
 
             # 네모박스 그리기
             # cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 2)
-    numbers = refind(image, coord_top_left, coord_bottom_right)
+    numbers = refind(reader, image, coord_top_left, coord_bottom_right)
 
     return coord_top_left, coord_bottom_right, numbers, sign_box
     
-def refind(image, coord_top_left, coord_bottom_right):
-    reader = easyocr.Reader(['ko', 'en'])
-    
+def refind(reader, image, coord_top_left, coord_bottom_right):  
     numbers = []  # 숫자를 저장할 리스트
     
     print("\n잘라낸 영역 재분석 결과:")
@@ -68,11 +64,6 @@ def refind(image, coord_top_left, coord_bottom_right):
 
         # 전처리: 이진화 (Thresholding)
         _, binary = cv2.threshold(cropped_image, 10, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-
-        # 전처리된 이미지를 저장
-        preprocessed_path = f"preprocessed_cropped_{i + 1}.jpg"
-        # cv2.imwrite(preprocessed_path, binary)
-        # print(f"박스 {i + 1}: 전처리된 이미지가 '{preprocessed_path}'에 저장되었습니다.")
 
         # EasyOCR로 다시 인식
         reanalyzed_results = reader.readtext(binary)

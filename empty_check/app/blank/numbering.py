@@ -13,6 +13,7 @@ def sorting(numbers, blanks, images, fixed_keyword='감독관 확인'):
         # 고정값이 없을 경우 모두 정렬
         fixed_numbers = []
         fixed_blanks = []
+        fixed_images = []
         remaining_numbers = numbers
         remaining_blanks = blanks
         remaining_images = images

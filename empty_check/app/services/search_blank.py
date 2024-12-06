@@ -5,14 +5,14 @@ from app.blank.coord import problem_box_check, crop_problems_image, small_box, c
 from app.blank.blank import is_image_blank
 from app.blank.numbering import sorting
 
-def searching(image):
+def searching(reader, image):
     masked_images = [] # crop된 이미지들을 담는 list
     origin_images = []
     blanks = []
 
     preprocess_image = preprocessing(image)
 
-    coord_top_left, coord_bottom_right, numbers, sign_box = find_texts(preprocess_image)
+    coord_top_left, coord_bottom_right, numbers, sign_box = find_texts(reader, preprocess_image)
 
     small_horizontal, small_vertical = small_box(coord_top_left[1], coord_bottom_right[1]) # '문제' 텍스트의 가로, 세로 길이
 

@@ -5,7 +5,7 @@ from app.make_datast.preprocessing import preprocess_image
 from app.blank.coord import problem_box_check, small_box
 import os
 
-def make_dataset(image, count, file_name):
+def make_dataset(reader, image, count, file_name):
     images = random_rotate(image, count)
 
     preprocess_images = []
@@ -13,7 +13,7 @@ def make_dataset(image, count, file_name):
     for i in range(len(images)):
         preprocess_images.append(preprocess_image(images[i]))
 
-    coord_top_left, coord_bottom_right, numbers, sign_box = find_texts(preprocess_images[0])
+    coord_top_left, coord_bottom_right, numbers, sign_box = find_texts(reader, preprocess_images[0])
     num_of_problems = len(numbers)
 
     horizontal, vertical = problem_box_check(coord_top_left)
