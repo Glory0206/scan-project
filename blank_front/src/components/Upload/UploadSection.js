@@ -12,36 +12,39 @@ const UploadSection = () => {
   const [scale, setScale] = useState(1);
   const [imageState, setImageState] = useState({
     position: { x: 0, y: 0 },
-    dragStart: { x: 0, y: 0 }
+    dragStart: { x: 0, y: 0 },
   });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isCoordMode, setIsCoordMode] = useState(false);
-  const [fileData, setFileData] = useState([]); 
+  const [fileData, setFileData] = useState([]);
+
+  // 초기화 함수
+  const resetImageState = () => {
+    setScale(1);
+    setImageState({
+      position: { x: 0, y: 0 },
+      dragStart: { x: 0, y: 0 },
+    });
+  };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
       setFileName(`${files.length}개의 이미지 선택됨`);
-      
-      const imageUrls = files.map(file => ({
+      const imageUrls = files.map((file) => ({
         url: URL.createObjectURL(file),
         name: file.name,
         state: {
           position: { x: 0, y: 0 },
           dragStart: { x: 0, y: 0 },
-          scale: 1
-        }
+          scale: 1,
+        },
       }));
-      
       setSelectedImages(imageUrls);
       setCurrentImageIndex(0);
       setShowError(false);
-      setScale(1);
-      setImageState({
-        position: { x: 0, y: 0 },
-        dragStart: { x: 0, y: 0 }
-      });
+      resetImageState();
     }
   };
 
@@ -50,18 +53,17 @@ const UploadSection = () => {
       alert('이미지를 업로드 해주세요.');
       return;
     }
-  
+
     try {
       setIsAnalyzing(true);
-  
       const formData = new FormData();
+
       for (const image of selectedImages) {
         const response = await fetch(image.url);
         const blob = await response.blob();
         formData.append('images', blob, image.name);
       }
-  
-      // 서버 요청
+
       const { data } = await axios.post('http://localhost:8000/analyze', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: ({ loaded, total }) => {
@@ -69,16 +71,9 @@ const UploadSection = () => {
         },
         timeout: 100000,
       });
-  
-      // 데이터 처리
-      if (data.results && data.results.length > 0) {
-        const newFileData = data.results.map((result) => ({
-          sheetName: result?.sheetName || 'Unknown Sheet',
-          areas: result?.areas || [],
-        }));
-  
-        setFileData((prev) => [...prev, ...newFileData]);
-        console.log('추가된 파일 데이터:', newFileData);
+
+      if (data.results?.length) {
+        setFileData((prev) => [...prev, ...data.results]);
       } else {
         console.error('results 배열이 없습니다:', data);
       }
@@ -90,79 +85,58 @@ const UploadSection = () => {
     }
   };
 
-  const handleWheel = useCallback((e) => {
-    e.preventDefault();
-    if (isCoordMode) return;
-    const direction = e.deltaY > 0 ? -1 : 1;
-    const newPercent = Math.round((scale * 100 + (direction * 10)) / 10) * 10;
-    setScale(Math.min(Math.max(50, newPercent), 400) / 100);
-  }, [scale, isCoordMode]);
+  const handleWheel = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (isCoordMode) return;
+      const direction = e.deltaY > 0 ? -1 : 1;
+      const newScale = Math.min(Math.max(scale * 100 + direction * 10, 50), 400) / 100;
+      setScale(newScale);
+    },
+    [scale, isCoordMode]
+  );
+
+  const handleDeleteImage = () => {
+    setSelectedImages([]);
+    setFileName('이미지를 선택해주세요');
+    resetImageState();
+    document.getElementById('image-upload').value = '';
+  };
+
+  const handleImageSelect = (index) => {
+    setCurrentImageIndex(index);
+    resetImageState();
+  };
+
+  const handleCoordToggle = () => setIsCoordMode((prev) => !prev);
 
   const handleMouseDown = (e) => {
-    e.preventDefault();
     if (isCoordMode) return;
     setIsDragging(true);
-    setImageState(prev => ({
+    setImageState((prev) => ({
       ...prev,
       dragStart: {
         x: e.clientX - prev.position.x,
-        y: e.clientY - prev.position.y
-      }
+        y: e.clientY - prev.position.y,
+      },
     }));
   };
 
   const handleMouseMove = (e) => {
     if (isDragging) {
-      setImageState(prev => ({
+      setImageState((prev) => ({
         ...prev,
         position: {
           x: e.clientX - prev.dragStart.x,
-          y: e.clientY - prev.dragStart.y
-        }
+          y: e.clientY - prev.dragStart.y,
+        },
       }));
     }
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+  const handleMouseUp = () => setIsDragging(false);
 
-  const handleOriginalView = () => {
-    setScale(1);
-    setImageState({
-      position: { x: 0, y: 0 },
-      dragStart: { x: 0, y: 0 }
-    });
-  };
-
-  const handleDeleteImage = () => {
-    setSelectedImages([]);
-    setFileName('이미지를 선택해주세요');
-    setScale(1);
-    setImageState({
-      position: { x: 0, y: 0 },
-      dragStart: { x: 0, y: 0 }
-    });
-    
-    const fileInput = document.getElementById('image-upload');
-    if (fileInput) {
-      fileInput.value = '';
-    }
-  };
-
-  const handleImageSelect = (index) => {
-    setCurrentImageIndex(index);
-    setScale(1);
-    setImageState({
-      position: { x: 0, y: 0 },
-      dragStart: { x: 0, y: 0 }
-    });
-  };
-
-  const handleCoordToggle = () => {
-    setIsCoordMode(prev => !prev);
-  };
-
+  // 마우스 이벤트 핸들러 등록 및 해제
   useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
@@ -171,28 +145,25 @@ const UploadSection = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     }
-
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging]);
 
+  // 스케일 변경 이벤트 등록 및 해제
   useEffect(() => {
     const imagePreview = document.querySelector('.image-preview');
     if (imagePreview) {
       imagePreview.addEventListener('wheel', handleWheel, { passive: false });
-      return () => {
-        imagePreview.removeEventListener('wheel', handleWheel);
-      };
+      return () => imagePreview.removeEventListener('wheel', handleWheel);
     }
-  }, [scale, imageState.position]);
+  }, [handleWheel]);
 
+  // Object URL 정리
   useEffect(() => {
     return () => {
-      selectedImages.forEach(image => {
-        URL.revokeObjectURL(image.url);
-      });
+      selectedImages.forEach((image) => URL.revokeObjectURL(image.url));
     };
   }, [selectedImages]);
 
@@ -214,27 +185,22 @@ const UploadSection = () => {
               <span className="file-name">{fileName}</span>
             </label>
           </div>
-          <div>
-            <button 
-              className={`analyze-button ${isAnalyzing ? 'analyzing' : ''}`}
-              onClick={handleAnalyze}
-              disabled={isAnalyzing}
-            >
-              {isAnalyzing ? `분석 중 ${uploadProgress}%` : '분석'}
-            </button>
-            <AnalyzeSection fileData={fileData}/>
-          </div>
+          <button
+            className={`analyze-button ${isAnalyzing ? 'analyzing' : ''}`}
+            onClick={handleAnalyze}
+            disabled={isAnalyzing}
+          >
+            {isAnalyzing ? `분석 중 ${uploadProgress}%` : '분석'}
+          </button>
         </div>
 
-        <div className={`error-message ${showError ? 'show' : ''}`}>
-          이미지를 업로드 해주세요.
-        </div>
+        <div className={`error-message ${showError ? 'show' : ''}`}>이미지를 업로드 해주세요.</div>
 
         <div className="content-wrapper">
           <div className="image-list">
             <h3>이미지 목록</h3>
             {selectedImages.map((image, index) => (
-              <div 
+              <div
                 key={image.name}
                 className={`image-list-item ${index === currentImageIndex ? 'active' : ''}`}
                 onClick={() => handleImageSelect(index)}
@@ -248,45 +214,27 @@ const UploadSection = () => {
           <div className="preview-section">
             <div className="image-controls">
               <div className="left-controls">
-                <button 
-                  className="original-view-button"
-                  onClick={handleOriginalView}
-                >
-                  <span>원본보기</span>
-                </button>
-                <button 
-                  className={`coord-toggle-button ${isCoordMode ? 'active' : ''}`}
-                  onClick={handleCoordToggle}
-                >
-                  <span>좌표설정 {isCoordMode ? 'ON' : 'OFF'}</span>
-                </button>
-                <button 
-                  className="delete-image-button"
-                  onClick={handleDeleteImage}
-                >
-                  <span>사진삭제</span>
+                <button className="delete-image-button" onClick={handleDeleteImage}>
+                  사진삭제
                 </button>
               </div>
-              <div className="scale-indicator">
-                {Math.round(scale * 100)}%
-              </div>
+              <div className="scale-indicator">{Math.round(scale * 100)}%</div>
             </div>
-            
             <div className="image-preview">
               {selectedImages.length > 0 && (
-                <div 
+                <div
                   className="image-container"
                   style={{
-                    cursor: isCoordMode ? 'crosshair' : isDragging ? 'grabbing' : 'grab'
+                    cursor: isCoordMode ? 'crosshair' : isDragging ? 'grabbing' : 'grab',
                   }}
                   onMouseDown={handleMouseDown}
                 >
-                  <img 
+                  <img
                     src={selectedImages[currentImageIndex].url}
                     alt={`Preview ${currentImageIndex + 1}`}
                     style={{
                       transform: `scale(${scale}) translate(${imageState.position.x}px, ${imageState.position.y}px)`,
-                      transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                      transition: isDragging ? 'none' : 'transform 0.1s ease-out',
                     }}
                     draggable={false}
                   />
@@ -296,6 +244,7 @@ const UploadSection = () => {
           </div>
         </div>
       </div>
+      <AnalyzeSection fileData={fileData} onClearFileData={() => setFileData([])} />
     </div>
   );
 };

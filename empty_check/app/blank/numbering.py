@@ -23,7 +23,7 @@ def sorting(numbers, blanks, images, fixed_keyword='감독관 확인'):
     sorted_list = sorted(paired_list, key=lambda x: x[0])  # 숫자 기준으로 정렬
 
     # 정렬된 값들을 리스트로 변환
-    sorted_numbers = list(map(lambda x: str(x[0]), sorted_list))  # 정렬 후 문자열로 변환
+    sorted_numbers = list(map(lambda x: str(x[0]) + '번', sorted_list))  # 정렬 후 문자열로 변환
     sorted_blanks = list(map(lambda x: x[1], sorted_list))
     sorted_images = list(map(lambda x: x[2], sorted_list))
 
