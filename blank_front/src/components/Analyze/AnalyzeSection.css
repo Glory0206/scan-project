@@ -32,14 +32,6 @@
   height: calc(100% - 3.25rem);
 }
 
-.upload-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  opacity: 1;
-  visibility: visible;
-}
-
 .data-controls {
   display: flex;
   justify-content: space-between;
@@ -58,30 +50,12 @@
   width: 100%;
 }
 
-.preview-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
 .cropped-image img {
   width: 100%; /* 원하는 너비로 조정 */
   height: 180%; /* 비율 유지 */
   border: 1px solid #000000;
   max-width: 100%; /* 부모 요소를 벗어나지 않도록 제한 */
   object-fit: contain; /* 선택 사항: 이미지의 잘림 방지 또는 균형 잡힌 크기 조정 */
-}
-
-.image-list {
-  width: 180px;
-  padding: 0.75rem;
-  background: white;
-  border: 1px solid #44cce5;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  overflow-y: auto;
-  height: calc(100% - 1.5rem);
 }
 
 .image-list h3 {
@@ -97,22 +71,6 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: #f9f9f9;
-}
-
-.left-controls {
-  display: flex;
-  gap: 8px;
-}
-
-.input-group {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-  align-items: center;
-  width: 70%;
-  margin-left: auto;
-  margin-right: auto;
-  flex-shrink: 0;
 }
 
 .file-information {
@@ -139,22 +97,6 @@
   margin-bottom: 10px; /* 요소 간 간격 추가 */
   font-family: Arial, sans-serif; /* 읽기 좋은 글꼴 */
   color: #333; /* 일반 텍스트 색상 */
-}
-
-.delete-image-button {
-  padding: 8px 16px;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #ef4444;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
 .data-preview {
