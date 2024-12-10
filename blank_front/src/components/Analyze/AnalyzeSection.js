@@ -74,7 +74,7 @@ const AnalyzeSection = ({ fileData = [], onClearFileData }) => {
                   </div>
                 ))
               ) : (
-                <p>선택된 데이터가 없습니다.</p>
+                <div></div>
               )}
             </div>
           </div>

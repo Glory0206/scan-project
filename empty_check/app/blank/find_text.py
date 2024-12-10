@@ -36,7 +36,7 @@ def find_texts(reader, image, target_texts=['[', ']']):  # '[]' 안에 있는 '�
             elif '문' in text or '제' in text:
                     coord_top_left.append(top_left)
                     coord_bottom_right.append(bottom_right)
-                    check_list.append(text)
+                    check_list.append(['1'])
         elif any(char in clean_text for char in ['감', '독']):
             if sign_box == []:
                 top_left = tuple(map(int, bbox[0]))
@@ -67,6 +67,7 @@ def refind(reader, image, coord_top_left, coord_bottom_right, check_list):
 
         # 전처리: 이진화 (Thresholding)
         binary = cv2.adaptiveThreshold(cropped_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        # _, binary = cv2.threshold(cropped_image, 60, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
         # EasyOCR로 다시 인식
         reanalyzed_results = reader.readtext(binary)
