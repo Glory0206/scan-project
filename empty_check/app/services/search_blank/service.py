@@ -1,9 +1,8 @@
-import os
-from app.blank.preprocessing import preprocessing
-from app.blank.find_text import find_texts
-from app.blank.coord import problem_box_check, crop_problems_image, small_box, crop_sign_image
-from app.blank.blank import is_image_blank
-from app.blank.numbering import sorting
+from app.services.search_blank.utils.preprocessing import preprocessing
+from app.utils.find_text import find_texts
+from app.utils.coord import problem_box_check, crop_problems_image, small_box, crop_sign_image
+from app.services.search_blank.utils.blank import is_image_blank
+from app.services.search_blank.utils.numbering import sorting
 
 def searching(reader, image):
     masked_images = [] # crop된 이미지들을 담는 list

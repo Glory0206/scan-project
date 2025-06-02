@@ -1,14 +1,11 @@
 from fastapi import FastAPI
 from typing import Dict
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.routers.generate_router import router as datasets_router
-from app.routers.analyze_router import router as search_router
+from app.api.routers import router as api_router
 
 app = FastAPI()
 
-app.include_router(datasets_router)
-app.include_router(search_router)
+app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,

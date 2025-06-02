@@ -1,9 +1,8 @@
-from app.make_datast.random_rotate import random_rotate
-from app.blank.find_text import find_texts
-from app.make_datast.write import write_problem, write_sign
-from app.make_datast.preprocessing import preprocess_image
-from app.blank.coord import problem_box_check, small_box
-import os
+from app.services.make_dataset.utils.random_rotate import random_rotate
+from app.utils.find_text import find_texts
+from app.services.make_dataset.utils.write import write_problem, write_sign
+from app.services.make_dataset.utils.preprocessing import preprocess_image
+from app.utils.coord import problem_box_check, small_box
 
 def make_dataset(reader, image, count, file_name):
     images = random_rotate(image, count)

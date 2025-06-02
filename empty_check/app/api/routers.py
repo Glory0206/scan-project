@@ -1,0 +1,7 @@
+from fastapi import APIRouter
+from app.api.endpoints.analyze import router as analyze_router
+from app.api.endpoints.generate import router as generate_router
+
+router = APIRouter()
+router.include_router(analyze_router)
+router.include_router(generate_router)

@@ -2,10 +2,8 @@ from fastapi import APIRouter, HTTPException, UploadFile, File
 from app.services.search_blank import searching
 from typing import List
 
-import os
 import base64
 import cv2
-import shutil
 import easyocr
 import numpy as np
 

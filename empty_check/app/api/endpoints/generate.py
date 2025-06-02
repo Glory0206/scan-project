@@ -2,10 +2,9 @@ from fastapi import APIRouter, HTTPException, UploadFile, Form
 import os
 import cv2
 import numpy as np
-import shutil
 import easyocr
 
-from app.services.datasets import make_dataset
+from app.services.make_dataset.service import make_dataset
 
 router = APIRouter()
 
