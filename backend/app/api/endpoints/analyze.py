@@ -11,9 +11,7 @@ router = APIRouter()
 
 @router.post("/analyze")
 async def analyze_images(images: List[UploadFile] = File(...)):
-    try:
-        reader = easyocr.Reader(['ko', 'en'])   
-    
+    try:    
         response_data = []
         
         for img in images:
@@ -26,7 +24,7 @@ async def analyze_images(images: List[UploadFile] = File(...)):
 
             if image is None:
                 raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")    
-            images, numbers, blanks = searching(reader, image)
+            images, numbers, blanks = searching(image)
 
             print("numbers: ", numbers)
             print("blanks: ", blanks)
