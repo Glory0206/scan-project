@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import io
 import os
 import random
 
@@ -44,19 +45,19 @@ def write_problem(image, file_name, coord_top_left, horizontal, vertical, num_of
                 cv2.putText(image, line, (adjusted_x, y_offset), font, font_scale, font_color, thickness, cv2.LINE_AA)
                 y_offset += text_height + 30  # 줄 간격을 적절히 조정(30 픽셀)
 
-    # 이미지 저장
-    save_path = os.path.abspath(f"storage/{file_name}_{num}.jpg")
-
-    # 디버깅용 로그
-    print(f"[DEBUG] 저장 시도 → {save_path}")
-    print(f"[DEBUG] type: {type(image)} / shape: {getattr(image, 'shape', None)} / dtype: {image.dtype}")
-
     if image.dtype != np.uint8:
-        print("[WARN] 이미지 dtype이 uint8이 아님 → 변환 시도")
-        image = np.clip(image, 0, 255).astype(np.uint8)
+        image = np.clip(image, 0, 255).astype(np.uint8)    
 
-    success = cv2.imwrite(save_path, image)
-    print(f"[RESULT] 저장 성공 여부: {success}")
+    success, buffer = cv2.imencode(".jpg", image)
+
+    if not success:
+        raise ValueError("이미지를 메모리에 저장하는 데 실패했습니다.")
+
+    image_io = io.BytesIO(buffer.tobytes())
+    image_io.seek(0)
+
+    file_basename = f"{file_name}_{num}.jpg"
+    return file_basename, image_io
 
 def write_sign(preprocess_image, sign_box):
     use = random.randint(0, 1)

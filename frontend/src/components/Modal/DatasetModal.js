@@ -49,15 +49,39 @@ const DatasetModal = ({ isOpen, onClose }) => {
 
       const response = await axios.post('http://localhost:8000/generate', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        responseType: 'blob',
       });
       
+      // 파일명을 Content-Disposition에서 추출
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'dataset.zip'; // 기본 파일명
 
-      if (response.data.success) {
-        displayMessage('데이터셋 생성 성공', 'success', onClose);
-      } else {
-        displayMessage(response.data.message || '데이터셋 생성에 실패했습니다.', 'error');
+      if (contentDisposition) {
+        // 정규표현식으로 filename 값만 추출해서 실제 저장될 파일 이름으로 설정
+        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (match && match[1]) {
+          fileName = decodeURIComponent(match[1]);
+        }
       }
+
+      // blob 데이터를 다운로드 링크로 만들어 다운로드
+      // blob: 브라우저 메모리 상에서 바이너리 데이터를 파일처럼 다룰 수 있는 객체
+      const blob = new Blob([response.data], { type: 'application/zip' });
+
+      // createObjectURL()은 메모리에 있는 Blob을 URL로 변환해서 <a> 태그에 넣을 수 있게 함
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a'); // <a> 태그 생성
+      a.href = url; // <a> 태그를 만들고 href를 blob URL로 지정
+      a.download = fileName; // download 속성에 추출했던 파일명을 지정
+      a.click(); // 사용자가 누르지 않아도 자동으로 다운로드
+
+      // 메모리 정리
+      window.URL.revokeObjectURL(url);
+
+      displayMessage('데이터셋 생성 성공', 'success', onClose);
     } catch (error) {
+      console.error(error);
       displayMessage('데이터셋 생성에 실패했습니다.', 'error');
     } finally {
       setIsLoading(false);
