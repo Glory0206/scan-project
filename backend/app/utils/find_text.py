@@ -1,8 +1,8 @@
-import easyocr
+from app.utils.global_reader import reader
 import cv2
 import re
 
-def find_texts(reader, image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'의 정보를 가져오기 위함
+def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'의 정보를 가져오기 위함
     results = reader.readtext(image)
 
     coord_top_left = []
@@ -47,11 +47,11 @@ def find_texts(reader, image, target_texts=['[', ']']):  # '[]' 안에 있는 '�
 
             # 네모박스 그리기
             # cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 2)
-    numbers = refind(reader, image, coord_top_left, coord_bottom_right, check_list)
+    numbers = refind(image, coord_top_left, coord_bottom_right, check_list)
 
     return coord_top_left, coord_bottom_right, numbers, sign_box
     
-def refind(reader, image, coord_top_left, coord_bottom_right, check_list):  
+def refind(image, coord_top_left, coord_bottom_right, check_list):  
     numbers = []  # 숫자를 저장할 리스트
     
     print("\n잘라낸 영역 재분석 결과:")
