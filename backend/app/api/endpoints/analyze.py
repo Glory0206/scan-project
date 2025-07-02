@@ -4,7 +4,6 @@ from typing import List
 
 import base64
 import cv2
-import easyocr
 import numpy as np
 
 router = APIRouter()
