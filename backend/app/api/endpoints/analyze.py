@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
-from app.services.search_blank import searching
+from app.services.search_blank.service import searching
 from typing import List
 
 import base64
