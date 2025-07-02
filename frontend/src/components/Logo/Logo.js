@@ -2,7 +2,7 @@ import './Logo.css';
 
 const Logo = () => {
   const handleLogoClick = () => {
-    window.location.reload();
+    window.location.reload(); // 웹페이지 새로고침
   };
 
   return (

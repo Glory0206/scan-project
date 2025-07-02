@@ -9,7 +9,7 @@ app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React 개발 서버 주소
+    allow_origins=["http://localhost:3000"], # React 프론트 연결
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, UploadFile, Form
+from app.utils.global_reader import reader
 import os
 import cv2
 import numpy as np
