@@ -56,7 +56,7 @@
 
 ## ⚙️ 프로젝트 구조
 
-'''
+```
 project-root/
 ├── backend/
 │ ├── main.py # FastAPI 실행 진입점
@@ -71,7 +71,7 @@ project-root/
 │ ├── index.js
 ├── storage/ # 생성 이미지 저장 폴더
 └── docs/ # 시연 이미지 or gif 저장 폴더
-'''
+```
 
 ---
 
@@ -118,20 +118,20 @@ project-root/
 ## 🛠 실행 방법
 
 ### 1. 백엔드 (FastAPI)
-'''
+```
 cd backend
 python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn main:app --reload
-'''
+```
 
 ### 1. 프론트엔드 (React)
-'''
+```
 cd frontend
 npm install
 npm start
-'''
+```
 
 ## 🧭 프로젝트 회고 및 개선 방향
 

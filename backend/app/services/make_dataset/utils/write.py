@@ -76,7 +76,7 @@ def write_sign(preprocess_image, sign_box):
         image_with_text = preprocess_image.copy()
 
         # 텍스트 추가
-        texts = ["Glory", "David", "Sebastian", "Milk", "Richard"]
+        texts = ["Glory"]
         random_number = random.randint(0,len(texts)-1)
         text = texts[random_number]
         font = cv2.FONT_HERSHEY_SIMPLEX
