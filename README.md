@@ -169,11 +169,18 @@ project-root/
 
 ## 🛠 실행 방법
 
+### 사전 요구사항
+
+```
+Python 3.10
+Node.js
+```
+
 ### 1. 백엔드 (FastAPI)
 ```
 cd backend
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate
+python -m venv scan
+.\scan\Scripts\activate.bat
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
