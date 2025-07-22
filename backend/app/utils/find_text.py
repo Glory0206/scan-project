@@ -2,7 +2,13 @@ from app.utils.global_reader import reader
 import cv2
 import re
 
-def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'의 정보를 가져오기 위함
+TARGET_TEXTS = ['[', ']']
+SUPERVISOR_TEXTS = ['감', '독']
+DEFAULT_PROBLEM_NUMBER = '1'
+REFIND_X1_OFFSET = 10
+REFIND_X2_OFFSET = 9
+
+def find_texts(image, target_texts=TARGET_TEXTS):  # '[]' 안에 있는 '문제'의 정보를 가져오기 위함
     results = reader.readtext(image)
 
     coord_top_left = []
@@ -36,8 +42,8 @@ def find_texts(image, target_texts=['[', ']']):  # '[]' 안에 있는 '문제'�
             elif '문' in text or '제' in text:
                     coord_top_left.append(top_left)
                     coord_bottom_right.append(bottom_right)
-                    check_list.append(['1'])
-        elif any(char in clean_text for char in ['감', '독']):
+                    check_list.append([DEFAULT_PROBLEM_NUMBER])
+        elif any(char in clean_text for char in SUPERVISOR_TEXTS):
             if sign_box == []:
                 top_left = tuple(map(int, bbox[0]))
                 bottom_right = tuple(map(int, bbox[2]))
@@ -59,8 +65,8 @@ def refind(image, coord_top_left, coord_bottom_right, check_list):
         x1, y1 = top_left
         x2, y2 = bottom_right
         
-        x1 += 10
-        x2 -= 9
+        x1 += REFIND_X1_OFFSET
+        x2 -= REFIND_X2_OFFSET
 
         # 이미지 자르기
         cropped_image = image[y1:y2, x1:x2]

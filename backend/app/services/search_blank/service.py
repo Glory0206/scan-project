@@ -4,6 +4,8 @@ from app.utils.coord import problem_box_check, crop_problems_image, small_box, c
 from app.services.search_blank.utils.blank import is_image_blank
 from app.services.search_blank.utils.numbering import sorting
 
+CHECK_SUPERVISOR = '감독관 확인'
+
 def searching(image):
     masked_images = [] # crop된 이미지들을 담는 list
     origin_images = []
@@ -27,7 +29,7 @@ def searching(image):
         sign_image, origin_sign_image = crop_sign_image(image, preprocess_image, sign_box)
         masked_images.append(sign_image)
         origin_images.append(origin_sign_image)
-        numbers.insert(0, '감독관 확인')
+        numbers.insert(0, CHECK_SUPERVISOR)
 
     for i in range(problems_count):
         masked_cropped_image, cropped_origin_image = crop_problems_image(image, preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i)
