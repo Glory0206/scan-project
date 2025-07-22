@@ -169,7 +169,28 @@ project-root/
 
 ## 🛠 실행 방법
 
-### 사전 요구사항
+### 1. Docker Compose로 실행 (추천)
+
+1. 저장소 클론
+   ```
+   git clone https://github.com/Glory0206/scan-project.git
+   cd scan-project
+   ```
+
+2. 도커 컴포즈로 전체 서비스 실행
+   ```
+   docker-compose up --build
+   ```
+
+3. 브라우저에서 접속
+   - 프론트엔드: http://localhost:3000
+   - 백엔드 API 문서: http://localhost:8000/docs
+
+---
+
+### 로컬 환경에서 직접 실행
+
+#### 사전 요구사항
 
 ```
 Python 3.10
