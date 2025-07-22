@@ -1,4 +1,7 @@
-def sorting(numbers, blanks, images, fixed_keyword='감독관 확인'):
+CHECK_SUPERVISOR = '감독관 확인'
+PROBLEM_SUFFIX = '번'
+
+def sorting(numbers, blanks, images, fixed_keyword=CHECK_SUPERVISOR):
     # 첫 번째 값이 고정 조건에 맞는지 확인
     if numbers[0] == fixed_keyword:
         fixed_numbers = numbers[:1]  # 첫 번째 값만 고정
@@ -23,7 +26,7 @@ def sorting(numbers, blanks, images, fixed_keyword='감독관 확인'):
     sorted_list = sorted(paired_list, key=lambda x: x[0])  # 숫자 기준으로 정렬
 
     # 정렬된 값들을 리스트로 변환
-    sorted_numbers = list(map(lambda x: str(x[0]) + '번', sorted_list))  # 정렬 후 문자열로 변환
+    sorted_numbers = list(map(lambda x: str(x[0]) + PROBLEM_SUFFIX, sorted_list))  # 정렬 후 문자열로 변환
     sorted_blanks = list(map(lambda x: x[1], sorted_list))
     sorted_images = list(map(lambda x: x[2], sorted_list))
 
