@@ -112,7 +112,7 @@ project-root/
 ├── backend/
 │ ├── main.py # FastAPI 실행 진입점
 │ ├── app/
-│ │ ├── api/endpoints/ # /analyze, /generate API 정의
+│ │ ├── api/controller/ # /analyze, /generate API 정의
 │ │ ├── services/ # 데이터셋 생성, 공백 분석 서비스 계층
 │ │ │ ├── utils/ # 이미지 전처리, 좌표 계산, 텍스트 검출, 공백 확인, 문제 순서 검증 유틸
 │ │ ├── utils/ # services 공통 유틸
