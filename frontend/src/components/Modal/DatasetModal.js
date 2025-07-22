@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import './DatasetModal.css';
 import axios from 'axios';
 
+const API_URL = 'http://localhost:8000';
+
 const DatasetModal = ({ isOpen, onClose }) => {
   const [imageCount, setImageCount] = useState(1);
   const [fileName, setFileName] = useState('이미지를 선택해주세요');
@@ -47,7 +49,7 @@ const DatasetModal = ({ isOpen, onClose }) => {
       formData.append('file', selectedFile);
       formData.append('count', imageCount);
 
-      const response = await axios.post('http://localhost:8000/generate', formData, {
+      const response = await axios.post(`${API_URL}/generate`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         responseType: 'blob',
       });
