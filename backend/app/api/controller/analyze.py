@@ -33,7 +33,7 @@ async def analyze_images(images: List[UploadFile] = File(...)):
                 images_list, numbers, blanks = searching(image)
             except Exception as e:
                 logging.exception(f"이미지 분석 중 오류 발생: {img.filename}")
-                raise HTTPException(status_code=500, detail=f"{img.filename} 분석 중 오류가 발생했습니다. 관리자에게 문의해 주세요.")
+                raise HTTPException(status_code=500, detail=f"{img.filename} 분석 중 오류가 발생했습니다.")
             # 응답 데이터 구조화
             formatted_results = []
 
