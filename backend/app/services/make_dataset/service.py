@@ -1,7 +1,7 @@
 from app.services.make_dataset.utils.random_rotate import random_rotate
 from app.utils.find_text import find_texts
 from app.services.make_dataset.utils.write import write_problem, write_sign
-from app.services.make_dataset.utils.preprocessing import preprocess_image
+from app.utils.image_preprocessing import preprocess_image
 from app.utils.coord import problem_box_check, small_box
 
 def make_dataset(image, count: int, file_name: str):

@@ -1,4 +1,4 @@
-from app.services.search_blank.utils.preprocessing import preprocessing
+from app.utils.image_preprocessing import preprocess_image
 from app.utils.find_text import find_texts
 from app.utils.coord import problem_box_check, crop_problems_image, small_box, crop_sign_image
 from app.services.search_blank.utils.blank import is_image_blank
@@ -11,9 +11,9 @@ def searching(image):
     origin_images = []
     blanks = []
 
-    preprocess_image = preprocessing(image)
+    preprocessing_image = preprocess_image(image)
 
-    coord_top_left, coord_bottom_right, numbers, sign_box = find_texts(preprocess_image)
+    coord_top_left, coord_bottom_right, numbers, sign_box = find_texts(preprocessing_image)
 
     small_horizontal, small_vertical = small_box(coord_top_left[1], coord_bottom_right[1]) # '문제' 텍스트의 가로, 세로 길이
 
@@ -26,13 +26,13 @@ def searching(image):
     problems_count = len(coord_top_left)
 
     if sign_box != []:
-        sign_image, origin_sign_image = crop_sign_image(image, preprocess_image, sign_box)
+        sign_image, origin_sign_image = crop_sign_image(image, preprocessing_image, sign_box)
         masked_images.append(sign_image)
         origin_images.append(origin_sign_image)
         numbers.insert(0, CHECK_SUPERVISOR)
 
     for i in range(problems_count):
-        masked_cropped_image, cropped_origin_image = crop_problems_image(image, preprocess_image, coord_top_left, coord_bottom_right, horizontal, vertical, i)
+        masked_cropped_image, cropped_origin_image = crop_problems_image(image, preprocessing_image, coord_top_left, coord_bottom_right, horizontal, vertical, i)
         masked_images.append(masked_cropped_image)
         origin_images.append(cropped_origin_image)
 
