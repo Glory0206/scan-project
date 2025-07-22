@@ -78,6 +78,12 @@ const UploadSection = () => {
         console.error('results 배열이 없습니다:', data);
       }
     } catch (error) {
+      // FastAPI에서 온 에러 메시지를 사용자에게 alert로 안내
+      if (error.response && error.response.data && error.response.data.detail) {
+        alert(error.response.data.detail);
+      } else {
+        alert('이미지 분석 실패: 알 수 없는 오류가 발생했습니다.');
+      }
       console.error('이미지 분석 실패:', error);
     } finally {
       setIsAnalyzing(false);
