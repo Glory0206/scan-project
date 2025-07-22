@@ -15,7 +15,6 @@ def random_rotate(image, count):
         angle = random.uniform(0.1, 0.5)
 
         angle *= direction
-        print("회전 각도",angle)
 
         # 이미지의 중심 좌표 계산
         (h, w) = open_cv_image.shape[:2]

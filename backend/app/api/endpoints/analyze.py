@@ -24,9 +24,6 @@ async def analyze_images(images: List[UploadFile] = File(...)):
             if image is None:
                 raise HTTPException(status_code=400, detail="이미지 파일이 유효하지 않습니다.")    
             images, numbers, blanks = searching(image)
-
-            print("numbers: ", numbers)
-            print("blanks: ", blanks)
             
             # 응답 데이터 구조화
             formatted_results = []
