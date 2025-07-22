@@ -16,8 +16,6 @@ def make_dataset(image, count: int, file_name: str):
     horizontal -= small_horizontal
     vertical -= small_vertical
 
-    print("문제의 개수",num_of_problems)
-
     result_files = []
 
     for i in range(len(preprocess_images)):
