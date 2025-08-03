@@ -29,7 +29,7 @@
 ### 🧪 1. 문제 영역 공백 분석 API (/analyze)
 - 논술 답안 이미지(.jpg/.png/.pdf 등) 업로드
 - 각 문제 영역을 자동으로 분할
-- EasyOCR 기반 텍스트 유무 판별
+- OpenCV, Numpy 기반 텍스트 유무 판별
 - 공백 여부 결과 + 잘린 문제 영역 이미지 반환 (Json 형식)
 
 ### 🧾 2. 텍스트 삽입 데이터셋 생성 API
@@ -102,8 +102,8 @@
 | **이미지 처리** | NumPy, OpenCV | 회전, 이진화, 텍스트 삽입, 좌표기반 Crop 등 전처리|
 | **데이터 통신** | REST API + FormData | Front → Back: 이미지 및 count 전달 / Back → Front: JSON 응답 및 zip 파일 스트리밍 |
 | **파일 응답** | StreamingResponse, zipfile | 학습 이미지 zip 압축 후 다운로드 제공 |
-| **DevOps**   | Docker, Docker Compose | 개발/운영 환경 일관성, 컨테이너 기반 배포, 전체 서비스 통합 실행 |
-| **협업/버전관리** | GitHub, Fork         | 소스코드 버전 관리, 협업, 오픈소스 기여 및 코드 분기/병합 관리         |
+| **DevOps**   | Docker | 개발/운영 환경 일관성, 컨테이너 기반 배포, 전체 서비스 통합 실행 |
+| **협업/버전관리** | GitHub, Fork, Bitbucket, Jira | 소스코드 버전 관리, 협업, 오픈소스 기여, 이슈 및 프로젝트 관리, 코드 분기/병합 관리 |
 
 ---
 
