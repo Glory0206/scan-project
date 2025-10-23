@@ -7,10 +7,16 @@ app = FastAPI()
 
 app.include_router(api_router)
 
+origins = [
+    "http://localhost:3000",  # 로컬 프론트엔드 주소
+    "http://localhost:5173",
+    "https://glory-scan-f.onrender.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=["http://localhost:3000"], # React 프론트 연결
-    allow_origins=["*"], # 모든 도메인 허용 (개발용)
+
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

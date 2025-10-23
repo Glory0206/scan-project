@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import "./UploadSection.css";
 import axios from "axios";
 import AnalyzeSection from "../Analyze/AnalyzeSection";
+import { API_URL } from "../config/config";
 
 const UploadSection = () => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -47,9 +48,6 @@ const UploadSection = () => {
       resetImageState();
     }
   };
-
-  // const API_URL = 'http://localhost:8000';
-  const API_URL = "http://localhost:8000";
 
   const handleAnalyze = async () => {
     if (!selectedImages.length) {

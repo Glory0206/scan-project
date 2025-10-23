@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import './DatasetModal.css';
 import axios from 'axios';
-
-const API_URL = 'http://localhost:8000';
-// const API_URL = 'http://localhost:8000';
+import {API_URL} from '../config/config';
 
 const DatasetModal = ({ isOpen, onClose }) => {
   const [imageCount, setImageCount] = useState(1);
